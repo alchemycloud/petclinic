@@ -1,0 +1,2924 @@
+PetClinic project[
+    url www.petclinic.com
+    namespace co.drytools
+    version 1 . 0 . 0 . 0
+    environments prod
+    developer duskovesin
+](
+
+    backend server[
+        owners(duskovesin)
+        template springboot(tests fabut)
+        security(
+            principal User
+            role UserRole
+            defaultRole VET
+            adminRole ADMIN
+            type email
+            signIn[
+                query User.findById
+            ]
+        )
+        path /pet-server
+        default model type mysql
+        file storage fs
+        mail support@DslUrl(DslWebUrlValue(www.petclinic.com),Right(SpecFile(/Users/duskovesin/Development/petclinic,petclinic.sifu,PetClinic project[
+    url www.petclinic.com
+    namespace co.drytools
+    version 1 . 0 . 0 . 0
+    environments(prod)
+    developer(duskovesin)
+](
+
+    backend server[
+        owners(duskovesin)
+        template springboot(tests fabut)
+        security(
+            principal User
+            role UserRole
+            defaultRole VET
+            adminRole ADMIN
+            type(email)
+        )
+        path /pet-server
+        default model type mysql
+        file storage fs
+    ](
+
+        adminEmail text[production "admin_production@email.com", test "admin_test@email.com"]
+
+        InvalidPetData dataConstraint
+
+        InvalidUser badRequest
+
+        InvalidPetOwner badRequest
+
+        UserRole enum(
+            VET
+            ADMIN
+            OWNER
+        )
+
+        PetType enum(
+            DOG
+            CAT
+            BIRD
+            FISH
+            OTHER
+        )
+
+        User model[auditable](
+            firstName text[min 1, max 40, searchable]
+            lastName text[min 1, max 60]
+            birthdate date
+            active boolean
+            vets list Vet[oneToMany user]
+            adminUsers select from User
+                 where User.role == ADMIN
+            findByNameOrLastNameLike select
+                 where User.firstName like firstname or User.lastName like lastname
+            filterUsers select
+                 where optional User.email like email and optional User.firstName like first and optional User.lastName like last
+            activeUsersVets select from User
+                 join Vet with User on User.vets
+                 where User.role == VET and User.active == true
+                 order by(User.lastName asc)
+        )
+
+        Owner model(
+            user User[oneToOne, unique]
+            address optional text[min 5, max 100]
+            city optional text[min 2, max 50]
+            telephone optional text[min 5, max 15]
+            pets list Pet[oneToMany owner]
+            allOwnersPaged select from Owner
+                 drop param
+                 take 20
+            findOwnerwithUser select from Owner
+                 join User on Owner.user
+                 where Owner.id == id
+            mandatoryAddress select from Owner
+                 where mandatory Owner.address == address
+            orderableOwners select
+                 where Owner.city is not null or Owner.telephone is not null
+                 orderable by(Owner.city, Owner.telephone)
+            deactivatedOwnerWithPets select from Owner
+                 join Pet with Owner on Owner.pets
+                 join User on Owner.user
+                 where User.active == false and User.role == OWNER
+            findOwnerVets select from Owner
+                 join User on Owner.user
+                 where User.role == VET
+        )
+
+        Vet model(
+            user User[oneToOne, unique]
+            image file
+        )
+
+        VetSpeciality model(
+            name text[unique, min 3, max 50]
+            description text[min 1, max 1024]
+        )
+
+        VetSpecialities model(
+            vet Vet
+            speciality VetSpeciality
+        )
+
+        Pet model(
+            owner Owner[manyToOne]
+            name text[min 2, max 40]
+            birthdate date
+            petType PetType
+            vaccinated boolean
+            petWithOwnerCount count
+                
+                 left join Owner on Pet.owner
+            petWithOwnerForOwner select
+                 left join Owner on Pet.owner
+                 where Pet.owner == owner
+        )
+
+        Visit model(
+            vet Vet
+            pet Pet[manyToOne]
+            visitNumber integer
+            timestamp datetime
+            petWeight optional decimal
+            description optional text[max 1024]
+            scheduled boolean[default false]
+        )
+
+        UserApi api[secured(ADMIN), rest /users](
+
+            user crud[model User]
+
+            users read[
+                query User.findAll
+                response list dto(
+                    User.id
+                    User.email
+                    User.firstName
+                    User.lastName
+                )
+                secured
+                rest /allUsers
+            ]
+
+            nonAdmins read[
+                select from User
+                     where User.role != ADMIN
+                secured(ADMIN, VET)
+                rest /nonAdmins
+            ]
+
+            adminUsers read[
+                query User.adminUsers
+                rest /admins
+                secured
+            ]
+
+            UserResponseDTO dto(
+                User.id
+                User.email
+                User.firstName
+                User.lastName
+                User.birthdate
+                User.active
+            )
+
+            UserActivationSimpleDTO dto(
+                User.id
+                User.active[default true]
+            )
+
+            UserDTO dto(
+                User.id
+                User.email
+                User.firstName
+                User.lastName
+                User.birthdate
+                User.active
+            )
+
+            setUserActiveStatusSimple update[
+                rest /active/simple
+                model User
+                request UserActivationSimpleDTO
+                response UserResponseDTO
+            ]
+
+            getActiveUser read[
+                rest /user
+                request UserDTO
+                response UserResponseDTO
+            ]
+        )
+
+        OwnerApi api[secured](
+
+            owner crud[model Owner, secured(VET), rest]
+
+            allOwners read[
+                query Owner.allOwnersPaged
+                rest /allOwners
+                secured(VET)
+            ]
+
+            ownersForAddress read[
+                paged
+                select from Owner
+                     join User on Owner.user
+                     where optional Owner.address like address
+                response list dto(
+                    Owner.id
+                    userEmail User.email
+                    userFirstName User.firstName
+                    userLastName User.lastName
+                )
+                secured(VET)
+                rest /owners
+            ]
+
+            ownersWithPets read[
+                select from Owner
+                     join Pet as pet with Owner on Owner.pets
+                     join User on Owner.user
+                response list dto(
+                    userFirstName User.firstName
+                    userLastName User.lastName
+                )
+                secured(VET)
+                rest /ownersWithPets
+            ]
+
+            ownersPets read[
+                select from Owner
+                     join Pet with Owner on Owner.pets
+                     join User on Owner.user
+                     where Owner.id == ownerId
+                response list dto(
+                    petId Pet.id
+                    Owner.id
+                    petName Pet.name
+                )
+                secured(VET)
+                rest /owner/:ownerId/pets
+            ]
+
+            myPets read[
+                select from Owner as owner
+                     join Pet as pet with owner on owner.pets
+                     join User with owner on owner.user
+                     where owner.user == principal
+                secured(OWNER)
+                rest
+            ]
+
+            ownerVets read[
+                query Owner.findOwnerVets
+                secured(VET)
+                rest
+            ]
+        )
+
+        VetApi api[secured(ADMIN), rest](
+
+            vet crud[model Vet, rest]
+
+            VetDTO dto(
+                Vet.id
+                User.firstName
+                User.lastName
+            )
+
+            VetWithSpecialtiesDTO dto(
+                User.firstName
+                User.lastName
+                specialties list VetSpeciality.name
+            )
+
+            vetsWithSpecialties read[
+                rest /vets
+                errors(
+                    InvalidPetData
+                )
+                request VetDTO
+                response list VetWithSpecialtiesDTO
+            ]
+
+            vetInfo read[
+                rest /vet/info/:id
+                request dto(
+                    Vet.id
+                )
+                response VetWithSpecialtiesDTO
+            ]
+        )
+
+        PetApi api[secured](
+
+            pet crud[model Pet, secured(VET), rest]
+
+            pets read[
+                paged
+                select from Pet
+                     join Owner on Pet.owner
+                     join User on Owner.user
+                response list dto(
+                    Pet.id
+                    Pet.name
+                    Pet.petType
+                    userLastName User.lastName
+                )
+                secured(VET)
+                rest /pets
+            ]
+
+            findPetbyType read[
+                select from Pet
+                     where Pet.petType == petType
+                response list dto(
+                    Pet.name
+                    Pet.petType
+                )
+                secured(VET)
+                rest
+            ]
+        )
+
+        VisitApi api[secured(VET), rest /visit](
+
+            visit crud[model Visit, rest]
+
+            vetVisits read[
+                paged
+                rest
+                select from Visit
+                     join Vet on Visit.vet
+                     join Pet on Visit.pet
+                     where Vet.user == user
+                response list dto(
+                    vetUser Vet.user
+                    petName Pet.name
+                    Visit.visitNumber
+                    Visit.scheduled
+                )
+            ]
+
+            scheduledVisits read[
+                rest /scheduled
+                select from Visit
+                     where Visit.description is not null and Visit.scheduled == true
+            ]
+
+            myVisits read[
+                secured(OWNER)
+                rest
+                test testName "description"
+                test testName2
+                select from Visit as visit
+                     join Pet as pet with visit on visit.pet
+                     join Owner as owner with pet on pet.owner
+                     join User with owner on owner.user
+                     where owner.user == userId
+            ]
+        )
+    )
+
+    website client[
+        owners(duskovesin)
+        template angular
+        path /petclinic
+        connectedTo(
+            backend
+        )
+        home(
+            welcomePage
+        )
+    ](
+
+        publicHeader container(
+            signInButton button {
+                on click {
+                    goto signInPage
+                }
+            }
+            signUpButton button {
+                on click {
+                    goto signUpPage
+                }
+            }
+        )
+
+        privateHeader container(
+            userInfo label
+        )
+
+        footer container(
+            about button {
+                on click {
+                    goto aboutPage
+                }
+            }
+        )
+
+        welcomePage page(
+            header publicHeader
+            welcome label
+            footer footer
+        )
+
+        aboutPage page[path /about](
+            header publicHeader
+            footer footer
+        )
+
+        petsPage page[path /private/pets, secured(VET)](
+            header privateHeader
+            petsList list[input(0, 10), load backend.PetApi.pets] {
+                on selected {
+                    goto petUpdatePage(item.id)
+                }
+            }
+            addPet button {
+                on click {
+                    goto petCreatePage
+                }
+            }
+            footer footer
+        )
+
+        petCreatePage page[path /private/pet/new, secured(VET)](
+            header privateHeader
+            petCreateForm form[input(none), submit backend.PetApi.createPet] {
+                on success {
+                    goto petsPage
+                }
+            }
+            footer footer
+        )
+
+        petUpdateForm form[load readPet, submit backend.PetApi.updatePet](
+            deleteButton button {
+                on click {
+                    call deletePet(params.id) {
+                        on success {
+                            goto petsPage
+                        }
+                    }
+                }
+            }
+        ) {
+            on success {
+                goto petsPage
+            }
+        }
+
+        petUpdatePage page[path /private/pet/:id, params(id integer), secured(VET)](
+            header privateHeader
+            formdasdas petUpdateForm[input(params.id)]
+            footer footer
+        )
+    )
+
+    adminPortal client[
+        template angular
+        path /admin
+        connectedTo(
+            backend
+        )
+        owners(duskovesin)
+    ]
+))))
+        connectedTo
+    ](
+
+        AuthenticationApi api(
+
+            SignInResponse dto(
+                accessToken text[min 64, max 4096, sensitive]
+                refreshToken text[min 64, max 4096, sensitive]
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+            )
+
+            refreshToken refreshtoken[
+                request AuthenticationApi.RefreshTokenRequest
+                post /refresh-token
+                query User.findById
+                response AuthenticationApi.SignInResponse
+                errors
+                test refreshToken
+                model User
+            ]
+
+            signIn emailsignin[
+                post /sign-in
+                model User
+                request AuthenticationApi.SignInRequest
+                query User.findById
+                response AuthenticationApi.SignInResponse
+                errors
+                test signIn
+            ]
+
+            signUp emailsignup[
+                post /sign-up
+                model User
+                request AuthenticationApi.SignUpRequest
+                errors
+                test signUp
+            ]
+
+            forgotPassword forgotpassword[
+                post /forgot-password
+                model User
+                request AuthenticationApi.ForgotPasswordRequest
+                errors
+                test forgotPassword
+            ]
+
+            resetPassword resetpassword[
+                post /reset-password
+                model User
+                request AuthenticationApi.ResetPasswordRequest
+                errors
+                test resetPassword
+            ]
+
+            verifyEmail verifyemail[
+                post /verify-email
+                model User
+                request AuthenticationApi.VerifyEmailRequest
+                errors
+                test verifyEmail
+            ]
+
+            changePassword changepassword[
+                request AuthenticationApi.ChangePasswordRequest
+                secured
+                post /change-password
+                model User
+                errors
+                test changePassword
+            ]
+
+            RefreshTokenRequest dto(
+                refreshToken text[min 64, max 4096, sensitive]
+            )
+
+            SignInRequest dto(
+                email text[min 6, max 128, email]
+                password text[min 6, max 255, sensitive]
+            )
+
+            SignUpRequest dto(
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                email text[min 6, max 128, email]
+                password text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            )
+
+            ForgotPasswordRequest dto(
+                email text[min 6, max 128, email]
+            )
+
+            ResetPasswordRequest dto(
+                resetPasswordCode text[min 64, max 64, sensitive]
+                newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            )
+
+            VerifyEmailRequest dto(
+                emailVerificationCode text[min 64, max 64, sensitive]
+            )
+
+            ChangePasswordRequest dto(
+                oldPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            )
+        )
+
+        adminEmail text[production "admin_production@email.com", test "admin_test@email.com"]
+
+        InvalidPetData dataConstraint
+
+        InvalidUser badRequest
+
+        InvalidPetOwner badRequest
+
+        UserRole enum(
+            VET VET
+            ADMIN ADMIN
+            OWNER OWNER
+        )
+
+        PetType enum(
+            DOG DOG
+            CAT CAT
+            BIRD BIRD
+            FISH FISH
+            OTHER OTHER
+        )
+
+        User model[auditable, type mysql, unique(email), unique(emailVerificationCode), unique(resetPasswordCode)](
+            id integer[primarykey, max 9223372036854775807]
+            firstName text[min 1, max 40, searchable, auditable]
+            lastName text[min 1, max 60, auditable]
+            birthdate date[auditable]
+            active boolean[auditable]
+            vets list Vet[oneToMany user, auditable]
+            adminUsers select(User) from User as User
+                 where User.role == backend.UserRole.ADMIN
+                 order by User.id asc
+            findByNameOrLastNameLike select(User) from User as User
+                 where User.firstName like firstname or User.lastName like lastname
+                 order by User.id asc
+            filterUsers select(User) from User as User
+                 where optional User.email like email and optional User.firstName like first and optional User.lastName like last
+                 order by User.id asc
+            activeUsersVets select(User, Vet) from User as User
+                 join Vet as Vet with User on User.vets
+                 where User.role == backend.UserRole.VET and User.active == true
+                 order by User.lastName asc
+            role UserRole[auditable]
+            email text[unique, min 6, max 128, email, auditable]
+            passwordHash text[min 6, max 128, sensitive, auditable]
+            emailVerificationCode optional text[unique, min 64, max 64, sensitive, auditable]
+            emailVerificationCodeTimestamp optional datetime[auditable]
+            emailVerified boolean[default false, auditable]
+            resetPasswordCode optional text[unique, min 64, max 64, sensitive, auditable]
+            resetPasswordCodeTimestamp optional datetime[auditable]
+            histories list UserHistory[oneToMany reference]
+            lastHistory optional UserHistory[manyToOne lastHistory]
+            findAll select(User) from User as User
+                 order by User.id asc
+            countAll count
+                 from User as User
+            findById select(User) from User as User
+                 where User.id == id
+                 order by User.id asc
+            deleteById delete
+                 from User as User
+                 where User.id == id
+            findByFirstName select(User) from User as User
+                 where User.firstName == firstName
+                 order by User.id asc
+            findByLastName select(User) from User as User
+                 where User.lastName == lastName
+                 order by User.id asc
+            findByBirthdate select(User) from User as User
+                 where User.birthdate == birthdate
+                 order by User.id asc
+            findByActive select(User) from User as User
+                 where User.active == active
+                 order by User.id asc
+            findByRole select(User) from User as User
+                 where User.role == role
+                 order by User.id asc
+            findByEmail select(User) from User as User
+                 where User.email == email
+                 order by User.id asc
+            findByPasswordHash select(User) from User as User
+                 where User.passwordHash == passwordHash
+                 order by User.id asc
+            findByEmailVerificationCode select(User) from User as User
+                 where User.emailVerificationCode == emailVerificationCode
+                 order by User.id asc
+            findByEmailVerificationCodeMandatory select(User) from User as User
+                 where mandatory User.emailVerificationCode == emailVerificationCode
+                 order by User.id asc
+            findByEmailVerificationCodeTimestamp select(User) from User as User
+                 where User.emailVerificationCodeTimestamp == emailVerificationCodeTimestamp
+                 order by User.id asc
+            findByEmailVerificationCodeTimestampMandatory select(User) from User as User
+                 where mandatory User.emailVerificationCodeTimestamp == emailVerificationCodeTimestamp
+                 order by User.id asc
+            findByEmailVerified select(User) from User as User
+                 where User.emailVerified == emailVerified
+                 order by User.id asc
+            findByResetPasswordCode select(User) from User as User
+                 where User.resetPasswordCode == resetPasswordCode
+                 order by User.id asc
+            findByResetPasswordCodeMandatory select(User) from User as User
+                 where mandatory User.resetPasswordCode == resetPasswordCode
+                 order by User.id asc
+            findByResetPasswordCodeTimestamp select(User) from User as User
+                 where User.resetPasswordCodeTimestamp == resetPasswordCodeTimestamp
+                 order by User.id asc
+            findByResetPasswordCodeTimestampMandatory select(User) from User as User
+                 where mandatory User.resetPasswordCodeTimestamp == resetPasswordCodeTimestamp
+                 order by User.id asc
+            nonAdmins select(User) from User as User
+                 where User.role != backend.UserRole.ADMIN
+                 order by User.id asc
+        )
+
+        Owner model[type mysql, unique(user)](
+            id integer[primarykey, max 9223372036854775807]
+            user User[oneToOne owner, unique]
+            address optional text[min 5, max 100]
+            city optional text[min 2, max 50]
+            telephone optional text[min 5, max 15]
+            pets list Pet[oneToMany owner]
+            allOwnersPaged select(Owner) from Owner as Owner
+                 order by Owner.id asc
+                 drop param
+                 take 20
+            findOwnerwithUser select(Owner, User) from Owner as Owner
+                 join User as User with Owner on Owner.user
+                 where Owner.id == id
+                 order by Owner.id asc
+            mandatoryAddress select(Owner) from Owner as Owner
+                 where mandatory Owner.address == address
+                 order by Owner.id asc
+            orderableOwners select(Owner) from Owner as Owner
+                 where Owner.city is not null or Owner.telephone is not null
+                 orderable by(Owner.city, Owner.telephone)
+            deactivatedOwnerWithPets select(Owner, Pet, User) from Owner as Owner
+                 join Pet as Pet with Owner on Owner.pets
+                 join User as User with Owner on Owner.user
+                 where User.active == false and User.role == backend.UserRole.OWNER
+                 order by Owner.id asc
+            findOwnerVets select(Owner, User) from Owner as Owner
+                 join User as User with Owner on Owner.user
+                 where User.role == backend.UserRole.VET
+                 order by Owner.id asc
+            findAll select(Owner) from Owner as Owner
+                 order by Owner.id asc
+            countAll count
+                 from Owner as Owner
+            findById select(Owner) from Owner as Owner
+                 where Owner.id == id
+                 order by Owner.id asc
+            deleteById delete
+                 from Owner as Owner
+                 where Owner.id == id
+            findByAddress select(Owner) from Owner as Owner
+                 where Owner.address == address
+                 order by Owner.id asc
+            findByAddressMandatory select(Owner) from Owner as Owner
+                 where mandatory Owner.address == address
+                 order by Owner.id asc
+            findByCity select(Owner) from Owner as Owner
+                 where Owner.city == city
+                 order by Owner.id asc
+            findByCityMandatory select(Owner) from Owner as Owner
+                 where mandatory Owner.city == city
+                 order by Owner.id asc
+            findByTelephone select(Owner) from Owner as Owner
+                 where Owner.telephone == telephone
+                 order by Owner.id asc
+            findByTelephoneMandatory select(Owner) from Owner as Owner
+                 where mandatory Owner.telephone == telephone
+                 order by Owner.id asc
+            findByUserId select(Owner) from Owner as Owner
+                 where Owner.user.id == userId
+                 order by Owner.id asc
+            ownersForAddress select(Owner, User) from Owner as Owner
+                 join User as User with Owner on Owner.user
+                 where optional Owner.address like address
+                 order by Owner.id asc
+            findOwnersForAddress select(Owner, User) from Owner as Owner
+                 join User as User with Owner on Owner.user
+                 where optional Owner.address like address
+                 order by Owner.id asc
+                 drop drop
+                 take take
+            countOwnersForAddress count
+                 from Owner as Owner
+                 join User as User with Owner on Owner.user
+                 where optional Owner.address like address
+            ownersWithPets select(Owner, pet, User) from Owner as Owner
+                 join Pet as pet with Owner on Owner.pets
+                 join User as User with Owner on Owner.user
+                 order by Owner.id asc
+            ownersPets select(Owner, Pet, User) from Owner as Owner
+                 join Pet as Pet with Owner on Owner.pets
+                 join User as User with Owner on Owner.user
+                 where Owner.id == ownerId
+                 order by Owner.id asc
+            myPets select(owner, pet, User) from Owner as owner
+                 join Pet as pet with owner on owner.pets
+                 join User as User with owner on owner.user
+                 where owner.user.id == principalId
+                 order by Owner.id asc
+        )
+
+        Vet model[type mysql, unique(user)](
+            id integer[primarykey, max 9223372036854775807]
+            user User[oneToOne vet, unique]
+            image File
+            findAll select(Vet) from Vet as Vet
+                 order by Vet.id asc
+            countAll count
+                 from Vet as Vet
+            findById select(Vet) from Vet as Vet
+                 where Vet.id == id
+                 order by Vet.id asc
+            deleteById delete
+                 from Vet as Vet
+                 where Vet.id == id
+            findByImage select(Vet) from Vet as Vet
+                 where Vet.image.path == imagePath
+                 order by Vet.id asc
+            findByUserId select(Vet) from Vet as Vet
+                 where Vet.user.id == userId
+                 order by Vet.id asc
+        )
+
+        VetSpeciality model[type mysql, unique(name)](
+            id integer[primarykey, max 9223372036854775807]
+            name text[unique, min 3, max 50]
+            description text[min 1, max 1024]
+            findAll select(VetSpeciality) from VetSpeciality as VetSpeciality
+                 order by VetSpeciality.id asc
+            countAll count
+                 from VetSpeciality as VetSpeciality
+            findById select(VetSpeciality) from VetSpeciality as VetSpeciality
+                 where VetSpeciality.id == id
+                 order by VetSpeciality.id asc
+            deleteById delete
+                 from VetSpeciality as VetSpeciality
+                 where VetSpeciality.id == id
+            findByName select(VetSpeciality) from VetSpeciality as VetSpeciality
+                 where VetSpeciality.name == name
+                 order by VetSpeciality.id asc
+            findByDescription select(VetSpeciality) from VetSpeciality as VetSpeciality
+                 where VetSpeciality.description == description
+                 order by VetSpeciality.id asc
+        )
+
+        VetSpecialities model[type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            vet Vet[manyToOne vetSpecialities]
+            speciality VetSpeciality[manyToOne vetSpecialities]
+            findAll select(VetSpecialities) from VetSpecialities as VetSpecialities
+                 order by VetSpecialities.id asc
+            countAll count
+                 from VetSpecialities as VetSpecialities
+            findById select(VetSpecialities) from VetSpecialities as VetSpecialities
+                 where VetSpecialities.id == id
+                 order by VetSpecialities.id asc
+            deleteById delete
+                 from VetSpecialities as VetSpecialities
+                 where VetSpecialities.id == id
+        )
+
+        Pet model[type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            owner Owner[manyToOne pet]
+            name text[min 2, max 40]
+            birthdate date
+            petType PetType
+            vaccinated boolean
+            petWithOwnerCount count
+                 from Pet as Pet
+                 left join Owner as Owner with Pet on Pet.owner
+            petWithOwnerForOwner select(Pet, Owner) from Pet as Pet
+                 left join Owner as Owner with Pet on Pet.owner
+                 where Pet.owner.id == ownerId
+                 order by Pet.id asc
+            findAll select(Pet) from Pet as Pet
+                 order by Pet.id asc
+            countAll count
+                 from Pet as Pet
+            findById select(Pet) from Pet as Pet
+                 where Pet.id == id
+                 order by Pet.id asc
+            deleteById delete
+                 from Pet as Pet
+                 where Pet.id == id
+            findByName select(Pet) from Pet as Pet
+                 where Pet.name == name
+                 order by Pet.id asc
+            findByBirthdate select(Pet) from Pet as Pet
+                 where Pet.birthdate == birthdate
+                 order by Pet.id asc
+            findByPetType select(Pet) from Pet as Pet
+                 where Pet.petType == petType
+                 order by Pet.id asc
+            findByVaccinated select(Pet) from Pet as Pet
+                 where Pet.vaccinated == vaccinated
+                 order by Pet.id asc
+            pets select(Pet, Owner, User) from Pet as Pet
+                 join Owner as Owner with Pet on Pet.owner
+                 join User as User with Owner on Owner.user
+                 order by Pet.id asc
+            findPets select(Pet, Owner, User) from Pet as Pet
+                 join Owner as Owner with Pet on Pet.owner
+                 join User as User with Owner on Owner.user
+                 order by Pet.id asc
+                 drop drop
+                 take take
+            countPets count
+                 from Pet as Pet
+                 join Owner as Owner with Pet on Pet.owner
+                 join User as User with Owner on Owner.user
+            findPetbyType select(Pet) from Pet as Pet
+                 where Pet.petType == petType
+                 order by Pet.id asc
+        )
+
+        Visit model[type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            vet Vet[manyToOne visit]
+            pet Pet[manyToOne visit]
+            visitNumber integer
+            timestamp datetime
+            petWeight optional decimal[precision 24, scale 8]
+            description optional text[max 1024]
+            scheduled boolean[default false]
+            findAll select(Visit) from Visit as Visit
+                 order by Visit.id asc
+            countAll count
+                 from Visit as Visit
+            findById select(Visit) from Visit as Visit
+                 where Visit.id == id
+                 order by Visit.id asc
+            deleteById delete
+                 from Visit as Visit
+                 where Visit.id == id
+            findByVisitNumber select(Visit) from Visit as Visit
+                 where Visit.visitNumber == visitNumber
+                 order by Visit.id asc
+            findByTimestamp select(Visit) from Visit as Visit
+                 where Visit.timestamp == timestamp
+                 order by Visit.id asc
+            findByPetWeight select(Visit) from Visit as Visit
+                 where Visit.petWeight == petWeight
+                 order by Visit.id asc
+            findByPetWeightMandatory select(Visit) from Visit as Visit
+                 where mandatory Visit.petWeight == petWeight
+                 order by Visit.id asc
+            findByDescription select(Visit) from Visit as Visit
+                 where Visit.description == description
+                 order by Visit.id asc
+            findByDescriptionMandatory select(Visit) from Visit as Visit
+                 where mandatory Visit.description == description
+                 order by Visit.id asc
+            findByScheduled select(Visit) from Visit as Visit
+                 where Visit.scheduled == scheduled
+                 order by Visit.id asc
+            vetVisits select(Visit, Vet, Pet) from Visit as Visit
+                 join Vet as Vet with Visit on Visit.vet
+                 join Pet as Pet with Visit on Visit.pet
+                 where Vet.user.id == userId
+                 order by Visit.id asc
+            findVetVisits select(Visit, Vet, Pet) from Visit as Visit
+                 join Vet as Vet with Visit on Visit.vet
+                 join Pet as Pet with Visit on Visit.pet
+                 where Vet.user.id == userId
+                 order by Visit.id asc
+                 drop drop
+                 take take
+            countVetVisits count
+                 from Visit as Visit
+                 join Vet as Vet with Visit on Visit.vet
+                 join Pet as Pet with Visit on Visit.pet
+                 where Vet.user.id == userId
+            scheduledVisits select(Visit) from Visit as Visit
+                 where Visit.description is not null and Visit.scheduled == true
+                 order by Visit.id asc
+            myVisits select(visit, pet, owner, User) from Visit as visit
+                 join Pet as pet with visit on visit.pet
+                 join Owner as owner with pet on pet.owner
+                 join User as User with owner on owner.user
+                 where owner.user.id == userIdId
+                 order by Visit.id asc
+        )
+
+        UserApi api[secured ADMIN, rest /users](
+
+            readUser read[
+                secured ADMIN
+                model User
+                query User.findById
+                errors
+                test readUser
+                request UserApi.ReadUserRequest
+                response UserApi.ReadUserResponse
+                get /users/read-user
+            ]
+
+            createUser create[
+                secured ADMIN
+                model User
+                query User.findById
+                errors
+                test createUser
+                request UserApi.CreateUserRequest
+                response UserApi.CreateUserResponse
+                post /users/create-user
+            ]
+
+            updateUser update[
+                secured ADMIN
+                model User
+                query User.findById
+                errors
+                test updateUser
+                request UserApi.UpdateUserRequest
+                response UserApi.UpdateUserResponse
+                put /users/update-user
+            ]
+
+            deleteUser delete[
+                secured ADMIN
+                query User.findById
+                errors
+                test deleteUser
+                model User
+                request UserApi.DeleteUserRequest
+                delete /users/delete-user
+            ]
+
+            users read[
+                query User.findAll
+                response list UserApi.UsersResponse
+                secured
+                get /users/allUsers
+                errors
+                test users
+                model User
+            ]
+
+            nonAdmins read[
+                query User.nonAdmins
+                secured(ADMIN, VET)
+                get /users/nonAdmins
+                errors
+                test nonAdmins
+                model User
+                response list UserApi.NonAdminsResponse
+            ]
+
+            adminUsers read[
+                query User.adminUsers
+                get /users/admins
+                secured
+                errors
+                test adminUsers
+                model User
+                response list UserApi.AdminUsersResponse
+            ]
+
+            UserResponseDTO dto(
+                id integer[max 9223372036854775807]
+                email text[min 6, max 128, email]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+            )
+
+            UserActivationSimpleDTO dto(
+                id integer[max 9223372036854775807]
+                active boolean
+            )
+
+            UserDTO dto(
+                id integer[max 9223372036854775807]
+                email text[min 6, max 128, email]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+            )
+
+            setUserActiveStatusSimple update[
+                put /users/active/simple
+                model User
+                request UserActivationSimpleDTO
+                response UserResponseDTO
+                secured ADMIN
+                errors
+                test setUserActiveStatusSimple
+            ]
+
+            getActiveUser read[
+                get /users/user
+                request UserDTO
+                response UserResponseDTO
+                secured ADMIN
+                errors
+                test getActiveUser
+            ]
+
+            ReadUserRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            ReadUserResponse dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            CreateUserRequest dto(
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            CreateUserResponse dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            UpdateUserRequest dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            UpdateUserResponse dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            DeleteUserRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            UsersResponse dto(
+                id integer[max 9223372036854775807]
+                email text[min 6, max 128, email]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+            )
+
+            NonAdminsResponse dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+
+            AdminUsersResponse dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                birthdate date
+                active boolean
+                role UserRole
+                email text[min 6, max 128, email]
+                passwordHash text[min 6, max 128, sensitive]
+                emailVerificationCode optional text[min 64, max 64, sensitive]
+                emailVerificationCodeTimestamp optional datetime
+                emailVerified boolean
+                resetPasswordCode optional text[min 64, max 64, sensitive]
+                resetPasswordCodeTimestamp optional datetime
+            )
+        )
+
+        OwnerApi api[secured](
+
+            readOwner read[
+                secured VET
+                get /owner/:id
+                model Owner
+                query Owner.findById
+                errors
+                test readOwner
+                request OwnerApi.ReadOwnerRequest
+                response OwnerApi.ReadOwnerResponse
+            ]
+
+            createOwner create[
+                secured VET
+                post /owner
+                model Owner
+                query Owner.findById
+                errors
+                test createOwner
+                request OwnerApi.CreateOwnerRequest
+                response OwnerApi.CreateOwnerResponse
+            ]
+
+            updateOwner update[
+                secured VET
+                put /owner/:id
+                model Owner
+                query Owner.findById
+                errors
+                test updateOwner
+                request OwnerApi.UpdateOwnerRequest
+                response OwnerApi.UpdateOwnerResponse
+            ]
+
+            deleteOwner delete[
+                secured VET
+                delete /owner/:id
+                query Owner.findById
+                errors
+                test deleteOwner
+                model Owner
+                request OwnerApi.DeleteOwnerRequest
+            ]
+
+            allOwners read[
+                query Owner.allOwnersPaged
+                get /allOwners
+                secured VET
+                errors
+                test allOwners
+                model Owner
+                request OwnerApi.AllOwnersRequest
+                response list OwnerApi.AllOwnersResponse
+            ]
+
+            ownersForAddress read[
+                paged
+                query Owner.ownersForAddress
+                response list OwnerApi.OwnersForAddressResponse
+                secured VET
+                get /owners
+                errors
+                test ownersForAddress
+                query Owner.countOwnersForAddress
+                model Owner
+                request OwnerApi.OwnersForAddressRequest
+            ]
+
+            ownersWithPets read[
+                query Owner.ownersWithPets
+                response list OwnerApi.OwnersWithPetsResponse
+                secured VET
+                get /ownersWithPets
+                errors
+                test ownersWithPets
+                model Owner
+            ]
+
+            ownersPets read[
+                query Owner.ownersPets
+                response list OwnerApi.OwnersPetsResponse
+                secured VET
+                get /owner/:ownerId/pets
+                errors
+                test ownersPets
+                model Owner
+                request OwnerApi.OwnersPetsRequest
+            ]
+
+            myPets read[
+                query Owner.myPets
+                secured OWNER
+                get /my-pets
+                errors
+                test myPets
+                model Owner
+                response list OwnerApi.MyPetsResponse
+            ]
+
+            ownerVets read[
+                query Owner.findOwnerVets
+                secured VET
+                get /owner-vets
+                errors
+                test ownerVets
+                model Owner
+                response list OwnerApi.OwnerVetsResponse
+            ]
+
+            ReadOwnerRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            ReadOwnerResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            CreateOwnerRequest dto(
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            CreateOwnerResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            UpdateOwnerRequest dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            UpdateOwnerResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            DeleteOwnerRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            AllOwnersRequest dto(
+                param integer[min 0]
+            )
+
+            AllOwnersResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+            )
+
+            OwnersForAddressResponse dto(
+                id integer[max 9223372036854775807]
+                userEmail text[min 6, max 128, email]
+                userFirstName text[min 1, max 40]
+                userLastName text[min 1, max 60]
+            )
+
+            OwnersForAddressRequest dto(
+                address optional optional text[min 5, max 100]
+                drop integer[min 0]
+                take integer[min 0]
+            )
+
+            OwnersWithPetsResponse dto(
+                userFirstName text[min 1, max 40]
+                userLastName text[min 1, max 60]
+            )
+
+            OwnersPetsResponse dto(
+                petId integer[max 9223372036854775807]
+                id integer[max 9223372036854775807]
+                petName text[min 2, max 40]
+            )
+
+            OwnersPetsRequest dto(
+                ownerId integer[max 9223372036854775807]
+            )
+
+            MyPetsResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+                petId integer[max 9223372036854775807]
+                petOwnerId integer[max 9223372036854775807]
+                petName text[min 2, max 40]
+                petBirthdate date
+                petPetType PetType
+                petVaccinated boolean
+                userFirstName text[min 1, max 40]
+                userLastName text[min 1, max 60]
+                userBirthdate date
+                userActive boolean
+                userRole UserRole
+                userEmail text[min 6, max 128, email]
+                userPasswordHash text[min 6, max 128, sensitive]
+                userEmailVerificationCode optional text[min 64, max 64, sensitive]
+                userEmailVerificationCodeTimestamp optional datetime
+                userEmailVerified boolean
+                userResetPasswordCode optional text[min 64, max 64, sensitive]
+                userResetPasswordCodeTimestamp optional datetime
+            )
+
+            OwnerVetsResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                address optional text[min 5, max 100]
+                city optional text[min 2, max 50]
+                telephone optional text[min 5, max 15]
+                userFirstName text[min 1, max 40]
+                userLastName text[min 1, max 60]
+                userBirthdate date
+                userActive boolean
+                userRole UserRole
+                userEmail text[min 6, max 128, email]
+                userPasswordHash text[min 6, max 128, sensitive]
+                userEmailVerificationCode optional text[min 64, max 64, sensitive]
+                userEmailVerificationCodeTimestamp optional datetime
+                userEmailVerified boolean
+                userResetPasswordCode optional text[min 64, max 64, sensitive]
+                userResetPasswordCodeTimestamp optional datetime
+            )
+        )
+
+        VetApi api[secured ADMIN, rest](
+
+            readVet read[
+                secured ADMIN
+                get /vet/:id
+                model Vet
+                query Vet.findById
+                errors
+                test readVet
+                request VetApi.ReadVetRequest
+                response VetApi.ReadVetResponse
+            ]
+
+            createVet create[
+                secured ADMIN
+                post /vet
+                model Vet
+                query Vet.findById
+                errors
+                test createVet
+                request VetApi.CreateVetRequest
+                response VetApi.CreateVetResponse
+            ]
+
+            updateVet update[
+                secured ADMIN
+                put /vet/:id
+                model Vet
+                query Vet.findById
+                errors
+                test updateVet
+                request VetApi.UpdateVetRequest
+                response VetApi.UpdateVetResponse
+            ]
+
+            deleteVet delete[
+                secured ADMIN
+                delete /vet/:id
+                query Vet.findById
+                errors
+                test deleteVet
+                model Vet
+                request VetApi.DeleteVetRequest
+            ]
+
+            VetDTO dto(
+                id integer[max 9223372036854775807]
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+            )
+
+            VetWithSpecialtiesDTO dto(
+                firstName text[min 1, max 40]
+                lastName text[min 1, max 60]
+                specialties list text[min 3, max 50]
+            )
+
+            vetsWithSpecialties read[
+                get /vets
+                errors InvalidPetData
+                request VetDTO
+                response list VetWithSpecialtiesDTO
+                secured ADMIN
+                test vetsWithSpecialties
+            ]
+
+            vetInfo read[
+                get /vet/info/:id
+                request VetApi.VetInfoRequest
+                response VetWithSpecialtiesDTO
+                secured ADMIN
+                errors
+                test vetInfo
+            ]
+
+            ReadVetRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            ReadVetResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                image FileApi.FileDTO
+            )
+
+            CreateVetRequest dto(
+                userId integer[max 9223372036854775807]
+                image FileApi.FileDTO
+            )
+
+            CreateVetResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                image FileApi.FileDTO
+            )
+
+            UpdateVetRequest dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                image FileApi.FileDTO
+            )
+
+            UpdateVetResponse dto(
+                id integer[max 9223372036854775807]
+                userId integer[max 9223372036854775807]
+                image FileApi.FileDTO
+            )
+
+            DeleteVetRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            VetInfoRequest dto(
+                id integer[max 9223372036854775807]
+            )
+        )
+
+        PetApi api[secured](
+
+            readPet read[
+                secured VET
+                get /pet/:id
+                model Pet
+                query Pet.findById
+                errors
+                test readPet
+                request PetApi.ReadPetRequest
+                response PetApi.ReadPetResponse
+            ]
+
+            createPet create[
+                secured VET
+                post /pet
+                model Pet
+                query Pet.findById
+                errors
+                test createPet
+                request PetApi.CreatePetRequest
+                response PetApi.CreatePetResponse
+            ]
+
+            updatePet update[
+                secured VET
+                put /pet/:id
+                model Pet
+                query Pet.findById
+                errors
+                test updatePet
+                request PetApi.UpdatePetRequest
+                response PetApi.UpdatePetResponse
+            ]
+
+            deletePet delete[
+                secured VET
+                delete /pet/:id
+                query Pet.findById
+                errors
+                test deletePet
+                model Pet
+                request PetApi.DeletePetRequest
+            ]
+
+            pets read[
+                paged
+                query Pet.pets
+                response list PetApi.PetsResponse
+                secured VET
+                get /pets
+                errors
+                test pets
+                query Pet.countPets
+                model Pet
+                request PetApi.PetsRequest
+            ]
+
+            findPetbyType read[
+                query Pet.findPetbyType
+                response list PetApi.FindPetbyTypeResponse
+                secured VET
+                get /find-petby-type
+                errors
+                test findPetbyType
+                model Pet
+                request PetApi.FindPetbyTypeRequest
+            ]
+
+            ReadPetRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            ReadPetResponse dto(
+                id integer[max 9223372036854775807]
+                ownerId integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                birthdate date
+                petType PetType
+                vaccinated boolean
+            )
+
+            CreatePetRequest dto(
+                ownerId integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                birthdate date
+                petType PetType
+                vaccinated boolean
+            )
+
+            CreatePetResponse dto(
+                id integer[max 9223372036854775807]
+                ownerId integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                birthdate date
+                petType PetType
+                vaccinated boolean
+            )
+
+            UpdatePetRequest dto(
+                id integer[max 9223372036854775807]
+                ownerId integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                birthdate date
+                petType PetType
+                vaccinated boolean
+            )
+
+            UpdatePetResponse dto(
+                id integer[max 9223372036854775807]
+                ownerId integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                birthdate date
+                petType PetType
+                vaccinated boolean
+            )
+
+            DeletePetRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            PetsResponse dto(
+                id integer[max 9223372036854775807]
+                name text[min 2, max 40]
+                petType PetType
+                userLastName text[min 1, max 60]
+            )
+
+            PetsRequest dto(
+                drop integer[min 0]
+                take integer[min 0]
+            )
+
+            FindPetbyTypeResponse dto(
+                name text[min 2, max 40]
+                petType PetType
+            )
+
+            FindPetbyTypeRequest dto(
+                petType PetType
+            )
+        )
+
+        VisitApi api[secured VET, rest /visit](
+
+            readVisit read[
+                secured VET
+                get /visit/visit/:id
+                model Visit
+                query Visit.findById
+                errors
+                test readVisit
+                request VisitApi.ReadVisitRequest
+                response VisitApi.ReadVisitResponse
+            ]
+
+            createVisit create[
+                secured VET
+                post /visit/visit
+                model Visit
+                query Visit.findById
+                errors
+                test createVisit
+                request VisitApi.CreateVisitRequest
+                response VisitApi.CreateVisitResponse
+            ]
+
+            updateVisit update[
+                secured VET
+                put /visit/visit/:id
+                model Visit
+                query Visit.findById
+                errors
+                test updateVisit
+                request VisitApi.UpdateVisitRequest
+                response VisitApi.UpdateVisitResponse
+            ]
+
+            deleteVisit delete[
+                secured VET
+                delete /visit/visit/:id
+                query Visit.findById
+                errors
+                test deleteVisit
+                model Visit
+                request VisitApi.DeleteVisitRequest
+            ]
+
+            vetVisits read[
+                paged
+                get /visit/vet-visits
+                query Visit.vetVisits
+                response list VisitApi.VetVisitsResponse
+                secured VET
+                errors
+                test vetVisits
+                query Visit.countVetVisits
+                model Visit
+                request VisitApi.VetVisitsRequest
+            ]
+
+            scheduledVisits read[
+                get /visit/scheduled
+                query Visit.scheduledVisits
+                secured VET
+                errors
+                test scheduledVisits
+                model Visit
+                response list VisitApi.ScheduledVisitsResponse
+            ]
+
+            myVisits read[
+                secured OWNER
+                get /visit/my-visits
+                test testName "description"
+                test testName2
+                query Visit.myVisits
+                errors
+                model Visit
+                request VisitApi.MyVisitsRequest
+                response list VisitApi.MyVisitsResponse
+            ]
+
+            ReadVisitRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            ReadVisitResponse dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            CreateVisitRequest dto(
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            CreateVisitResponse dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            UpdateVisitRequest dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            UpdateVisitResponse dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            DeleteVisitRequest dto(
+                id integer[max 9223372036854775807]
+            )
+
+            VetVisitsResponse dto(
+                vetUserId integer[max 9223372036854775807]
+                petName text[min 2, max 40]
+                visitNumber integer
+                scheduled boolean
+            )
+
+            VetVisitsRequest dto(
+                userId integer[max 9223372036854775807]
+                drop integer[min 0]
+                take integer[min 0]
+            )
+
+            ScheduledVisitsResponse dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+            )
+
+            MyVisitsRequest dto(
+                userIdId integer[max 9223372036854775807]
+            )
+
+            MyVisitsResponse dto(
+                id integer[max 9223372036854775807]
+                vetId integer[max 9223372036854775807]
+                petId integer[max 9223372036854775807]
+                visitNumber integer
+                timestamp datetime
+                petWeight optional decimal[precision 24, scale 8]
+                description optional text[max 1024]
+                scheduled boolean
+                petOwnerId integer[max 9223372036854775807]
+                petName text[min 2, max 40]
+                petBirthdate date
+                petPetType PetType
+                petVaccinated boolean
+                ownerId integer[max 9223372036854775807]
+                ownerUserId integer[max 9223372036854775807]
+                ownerAddress optional text[min 5, max 100]
+                ownerCity optional text[min 2, max 50]
+                ownerTelephone optional text[min 5, max 15]
+                userId integer[max 9223372036854775807]
+                userFirstName text[min 1, max 40]
+                userLastName text[min 1, max 60]
+                userBirthdate date
+                userActive boolean
+                userRole UserRole
+                userEmail text[min 6, max 128, email]
+                userPasswordHash text[min 6, max 128, sensitive]
+                userEmailVerificationCode optional text[min 64, max 64, sensitive]
+                userEmailVerificationCodeTimestamp optional datetime
+                userEmailVerified boolean
+                userResetPasswordCode optional text[min 64, max 64, sensitive]
+                userResetPasswordCodeTimestamp optional datetime
+            )
+        )
+
+        accessTokenValidityInSeconds integer[production 300, test 300]
+
+        refreshTokenValidityInSeconds integer[production 3600, test 3600]
+
+        accessTokenIsExpired unauthorized
+
+        refreshTokenIsExpired unauthorized
+
+        insufficientRights unauthorized
+
+        credentialsAreInvalid badRequest
+
+        emailAlreadyInUser badRequest
+
+        emailNotVerified badRequest
+
+        resetPasswordCodeIsExpired badRequest
+
+        emailVerificationCodeIsExpired badRequest
+
+        invalidResetPasswordCode badRequest
+
+        invalidEmailVerificationCodeError badRequest
+
+        nonexistentEmail badRequest
+
+        File embedded(
+            path text[max 255]
+        )
+
+        FileApi api(
+
+            FileDTO dto(
+                path text[max 255]
+            )
+
+            FileUploadDTO dto(
+                fileName text[max 255]
+                base64 text[sensitive, max 255]
+            )
+
+            findFile find[
+                request FileApi.FindFileRequest
+                get /file/:key/:fileName
+                errors
+                test findFile
+            ]
+
+            FindFileRequest dto(
+                key text[max 255]
+                fileName text[max 255]
+            )
+        )
+
+        DataVersion model[type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            major integer[min 0]
+            minor integer[min 0]
+            revision integer[min 0]
+            number integer[min 0]
+            time datetime
+            lock boolean
+            lockTime datetime
+            findAll select(DataVersion) from DataVersion as DataVersion
+                 order by DataVersion.id asc
+            countAll count
+                 from DataVersion as DataVersion
+            findById select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.id == id
+                 order by DataVersion.id asc
+            deleteById delete
+                 from DataVersion as DataVersion
+                 where DataVersion.id == id
+            findByMajor select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.major == major
+                 order by DataVersion.id asc
+            findByMinor select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.minor == minor
+                 order by DataVersion.id asc
+            findByRevision select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.revision == revision
+                 order by DataVersion.id asc
+            findByNumber select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.number == number
+                 order by DataVersion.id asc
+            findByTime select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.time == time
+                 order by DataVersion.id asc
+            findByLock select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.lock == lock
+                 order by DataVersion.id asc
+            findByLockTime select(DataVersion) from DataVersion as DataVersion
+                 where DataVersion.lockTime == lockTime
+                 order by DataVersion.id asc
+        )
+
+        DataProcessorLog model[unique(major, minor, revision, number), type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            major integer[min 0]
+            minor integer[min 0]
+            revision integer[min 0]
+            number integer[min 0]
+            description text[min 0, max 255]
+            started datetime
+            completed optional datetime
+            findAll select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 order by DataProcessorLog.id asc
+            countAll count
+                 from DataProcessorLog as DataProcessorLog
+            findById select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.id == id
+                 order by DataProcessorLog.id asc
+            deleteById delete
+                 from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.id == id
+            findByMajor select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.major == major
+                 order by DataProcessorLog.id asc
+            findByMinor select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.minor == minor
+                 order by DataProcessorLog.id asc
+            findByRevision select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.revision == revision
+                 order by DataProcessorLog.id asc
+            findByNumber select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.number == number
+                 order by DataProcessorLog.id asc
+            findByDescription select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.description == description
+                 order by DataProcessorLog.id asc
+            findByStarted select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.started == started
+                 order by DataProcessorLog.id asc
+            findByCompleted select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.completed == completed
+                 order by DataProcessorLog.id asc
+            findByCompletedMandatory select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where mandatory DataProcessorLog.completed == completed
+                 order by DataProcessorLog.id asc
+            findByMajorAndMinorAndRevisionAndNumber select(DataProcessorLog) from DataProcessorLog as DataProcessorLog
+                 where DataProcessorLog.major == major and DataProcessorLog.minor == minor and DataProcessorLog.revision == revision and DataProcessorLog.number == number
+                 order by DataProcessorLog.id asc
+        )
+
+        UserHistory model[type mysql](
+            id integer[primarykey, max 9223372036854775807]
+            correlationId optional text[max 255]
+            entityId integer[max 9223372036854775807]
+            reference optional User[manyToOne userHistory]
+            changeTime datetime
+            previous optional UserHistory[manyToOne userHistory]
+            firstName optional text[min 1, max 40]
+            lastName optional text[min 1, max 60]
+            birthdate optional date
+            active optional boolean
+            role optional UserRole
+            email optional text[min 6, max 128, email]
+            passwordHash optional text[min 6, max 128, sensitive]
+            emailVerificationCode optional text[min 64, max 64, sensitive]
+            emailVerificationCodeTimestamp optional datetime
+            emailVerified optional boolean
+            resetPasswordCode optional text[min 64, max 64, sensitive]
+            resetPasswordCodeTimestamp optional datetime
+            findAllHistoriesOfEntities select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.reference.id in referenceId
+                 order by UserHistory.id asc
+            findAll select(UserHistory) from UserHistory as UserHistory
+                 order by UserHistory.id asc
+            countAll count
+                 from UserHistory as UserHistory
+            findById select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.id == id
+                 order by UserHistory.id asc
+            deleteById delete
+                 from UserHistory as UserHistory
+                 where UserHistory.id == id
+            findByCorrelationId select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.correlationId == correlationId
+                 order by UserHistory.id asc
+            findByCorrelationIdMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.correlationId == correlationId
+                 order by UserHistory.id asc
+            findByEntityId select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.entityId == entityId
+                 order by UserHistory.id asc
+            findByChangeTime select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.changeTime == changeTime
+                 order by UserHistory.id asc
+            findByFirstName select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.firstName == firstName
+                 order by UserHistory.id asc
+            findByFirstNameMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.firstName == firstName
+                 order by UserHistory.id asc
+            findByLastName select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.lastName == lastName
+                 order by UserHistory.id asc
+            findByLastNameMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.lastName == lastName
+                 order by UserHistory.id asc
+            findByBirthdate select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.birthdate == birthdate
+                 order by UserHistory.id asc
+            findByBirthdateMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.birthdate == birthdate
+                 order by UserHistory.id asc
+            findByActive select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.active == active
+                 order by UserHistory.id asc
+            findByActiveMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.active == active
+                 order by UserHistory.id asc
+            findByRole select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.role == role
+                 order by UserHistory.id asc
+            findByRoleMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.role == role
+                 order by UserHistory.id asc
+            findByEmail select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.email == email
+                 order by UserHistory.id asc
+            findByEmailMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.email == email
+                 order by UserHistory.id asc
+            findByPasswordHash select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.passwordHash == passwordHash
+                 order by UserHistory.id asc
+            findByPasswordHashMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.passwordHash == passwordHash
+                 order by UserHistory.id asc
+            findByEmailVerificationCode select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.emailVerificationCode == emailVerificationCode
+                 order by UserHistory.id asc
+            findByEmailVerificationCodeMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.emailVerificationCode == emailVerificationCode
+                 order by UserHistory.id asc
+            findByEmailVerificationCodeTimestamp select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.emailVerificationCodeTimestamp == emailVerificationCodeTimestamp
+                 order by UserHistory.id asc
+            findByEmailVerificationCodeTimestampMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.emailVerificationCodeTimestamp == emailVerificationCodeTimestamp
+                 order by UserHistory.id asc
+            findByEmailVerified select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.emailVerified == emailVerified
+                 order by UserHistory.id asc
+            findByEmailVerifiedMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.emailVerified == emailVerified
+                 order by UserHistory.id asc
+            findByResetPasswordCode select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.resetPasswordCode == resetPasswordCode
+                 order by UserHistory.id asc
+            findByResetPasswordCodeMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.resetPasswordCode == resetPasswordCode
+                 order by UserHistory.id asc
+            findByResetPasswordCodeTimestamp select(UserHistory) from UserHistory as UserHistory
+                 where UserHistory.resetPasswordCodeTimestamp == resetPasswordCodeTimestamp
+                 order by UserHistory.id asc
+            findByResetPasswordCodeTimestampMandatory select(UserHistory) from UserHistory as UserHistory
+                 where mandatory UserHistory.resetPasswordCodeTimestamp == resetPasswordCodeTimestamp
+                 order by UserHistory.id asc
+        )
+
+        OwnerOrderableOwnersSortField enum(
+            OWNER_CITY owner.city
+            OWNER_TELEPHONE owner.telephone
+        )
+
+        SortOrder enum(
+            ASC asc
+            DESC desc
+        )
+    )
+
+    website client[
+        owners(duskovesin)
+        template angular
+        path /petclinic
+        connectedTo(
+            backend.AuthenticationApi.refreshToken
+            backend.AuthenticationApi.signIn
+            backend.AuthenticationApi.signUp
+            backend.AuthenticationApi.forgotPassword
+            backend.AuthenticationApi.resetPassword
+            backend.AuthenticationApi.verifyEmail
+            backend.AuthenticationApi.changePassword
+            backend.UserApi.readUser
+            backend.UserApi.createUser
+            backend.UserApi.updateUser
+            backend.UserApi.deleteUser
+            backend.UserApi.users
+            backend.UserApi.nonAdmins
+            backend.UserApi.adminUsers
+            backend.UserApi.setUserActiveStatusSimple
+            backend.UserApi.getActiveUser
+            backend.OwnerApi.readOwner
+            backend.OwnerApi.createOwner
+            backend.OwnerApi.updateOwner
+            backend.OwnerApi.deleteOwner
+            backend.OwnerApi.allOwners
+            backend.OwnerApi.ownersForAddress
+            backend.OwnerApi.ownersWithPets
+            backend.OwnerApi.ownersPets
+            backend.OwnerApi.myPets
+            backend.OwnerApi.ownerVets
+            backend.VetApi.readVet
+            backend.VetApi.createVet
+            backend.VetApi.updateVet
+            backend.VetApi.deleteVet
+            backend.VetApi.vetsWithSpecialties
+            backend.VetApi.vetInfo
+            backend.PetApi.readPet
+            backend.PetApi.createPet
+            backend.PetApi.updatePet
+            backend.PetApi.deletePet
+            backend.PetApi.pets
+            backend.PetApi.findPetbyType
+            backend.VisitApi.readVisit
+            backend.VisitApi.createVisit
+            backend.VisitApi.updateVisit
+            backend.VisitApi.deleteVisit
+            backend.VisitApi.vetVisits
+            backend.VisitApi.scheduledVisits
+            backend.VisitApi.myVisits
+            backend.FileApi.findFile
+        )
+        home welcomePage
+        i18n en
+    ](
+
+        publicHeader container[
+            params
+            model
+        ](
+            signInButton button {
+                on click goto signInPage
+            }
+            signUpButton button {
+                on click goto signUpPage
+            }
+        ) {
+            init action
+        }
+
+        privateHeader container[
+            params
+            model
+        ](
+            userInfo label
+        ) {
+            init action
+        }
+
+        footer container[
+            params
+            model
+        ](
+            about button {
+                on click goto aboutPage
+            }
+        ) {
+            init action
+        }
+
+        welcomePage page[
+            params
+            model
+            path /welcome-page
+        ](
+            header publicHeader[input]
+            welcome label
+            footer footer[input]
+        ) {
+            init action
+        }
+
+        aboutPage page[
+            path /about
+            params
+            model
+        ](
+            header publicHeader[input]
+            footer footer[input]
+        ) {
+            init action
+        }
+
+        petsPage page[
+            path /private/pets
+            secured VET
+            params
+            model
+        ](
+            header privateHeader[input]
+            petsList petsList[input(0, 10)]
+            addPet button {
+                on click goto petCreatePage
+            }
+            footer footer[input]
+        ) {
+            init action
+        }
+
+        petCreatePage page[
+            path /private/pet/new
+            secured VET
+            params
+            model
+        ](
+            header privateHeader[input]
+            petCreateForm petCreateForm[input none]
+            footer footer[input]
+        ) {
+            init action
+        }
+
+        petUpdateForm form[
+            load readPet
+            submit backend.PetApi.updatePet[type manual]
+            params(id integer[max 9223372036854775807])
+            model(id integer[max 9223372036854775807], ownerId integer[max 9223372036854775807], name text[min 2, max 40], birthdate date, petType backend.PetType,
+                    vaccinated boolean)
+            invisible(id)
+            visible(ownerId, name, birthdate, petType, vaccinated)
+        ](
+            ownerId integer[input model . ownerId, max 9223372036854775807]
+            name text[input model . name, min 2, max 40]
+            birthdate date[input model . birthdate]
+            petType PetTypeDropDown[input model . petType]
+            vaccinated boolean[input model . vaccinated]
+            deleteButton button {
+                on click call deletePet(params . id) {
+                    on success goto petsPage
+                }
+            }
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action do load
+            submit action call backend.PetApi.updatePet(model . id, model . ownerId, model . name, model . birthdate, model . petType,
+                    model . vaccinated) {
+                on success goto petsPage
+            }
+            load action call backend.PetApi.readPet(params . id) {
+                on success {
+                    model.id = success.id
+                    model.ownerId = success.ownerId
+                    model.name = success.name
+                    model.birthdate = success.birthdate
+                    model.petType = success.petType
+                    model.vaccinated = success.vaccinated
+                }
+            }
+            reload action(id integer[max 9223372036854775807]) {
+                params.id = action.id
+                do load
+            }
+        }
+
+        petUpdatePage page[
+            path /private/pet/:id
+            params(id integer)
+            secured VET
+            model
+        ](
+            header privateHeader[input]
+            formdasdas petUpdateForm[input params . id]
+            footer footer[input]
+        ) {
+            init action
+        }
+
+        signInPage page[
+            path /sign-in
+            params
+            model
+        ](
+            signInForm signInForm[input none]
+            signUp link[goto signUpPage]
+        ) {
+            init action
+        }
+
+        signUpPage page[
+            path /sign-up
+            params
+            model
+        ](
+            signUpForm signUpForm[input none]
+            signIn link[goto signInPage]
+        ) {
+            init action
+        }
+
+        verifyEmailPage page[
+            path /verify-email/:emailVerificationCode
+            params(emailVerificationCode text[min 64, max 64])
+            model
+        ](
+            verifyEmailForm verifyEmailForm[input params . emailVerificationCode]
+        ) {
+            init action
+        }
+
+        forgotPasswordPage page[
+            path /forgot-password
+            params
+            model
+        ](
+            forgotPasswordForm forgotPasswordForm[input none]
+        ) {
+            init action
+        }
+
+        resetPasswordPage page[
+            path /reset-password/:resetPasswordCode
+            params(resetPasswordCode text[min 64, max 64])
+            model
+        ](
+            resetPasswordForm resetPasswordForm[input params . resetPasswordCode]
+        ) {
+            init action
+        }
+
+        changePasswordForm form[
+            submit backend.AuthenticationApi.changePassword[type manual]
+            params(model optional dto(
+                    oldPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                    newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                ))
+            model(oldPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive], newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(oldPassword, newPassword)
+        ](
+            oldPassword text[input model . oldPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            newPassword text[input model . newPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.changePassword(model . oldPassword, model . newPassword) {
+                on success goto signInPage
+            }
+        }
+
+        petsList list[
+            load backend.PetApi.pets
+            params(drop integer[min 0], take integer[min 0])
+            model(id integer[max 9223372036854775807], name text[min 2, max 40], petType backend.PetType, userLastName text[min 1, max 60])
+            paged
+            visible(id, name, petType, userLastName)
+        ](
+            id integer[input item . id, max 9223372036854775807]
+            name text[input item . name, min 2, max 40]
+            petType label[input item . petType]
+            userLastName text[input item . userLastName, min 1, max 60]
+        ) {
+            init action do load
+            on selected goto petUpdatePage(item . id)
+            load action call backend.PetApi.pets(params . drop, params . take) {
+                on success list assign(
+                    model.id = success.id
+                    model.name = success.name
+                    model.petType = success.petType
+                    model.userLastName = success.userLastName
+                )
+            }
+            reload action(drop integer[min 0], take integer[min 0]) {
+                params.drop = action.drop
+                params.take = action.take
+                do load
+            }
+            selected event(itemId integer[max 9223372036854775807])
+            select action(selectedId integer[max 9223372036854775807]) fire petsList.selected(action . selectedId)
+        }
+
+        petCreateForm form[
+            submit backend.PetApi.createPet[type manual]
+            params(model optional dto(
+                    ownerId integer[max 9223372036854775807]
+                    name text[min 2, max 40]
+                    birthdate date
+                    petType backend.PetType
+                    vaccinated boolean
+                ))
+            model(ownerId integer[max 9223372036854775807], name text[min 2, max 40], birthdate date, petType backend.PetType, vaccinated boolean)
+            invisible
+            visible(ownerId, name, birthdate, petType, vaccinated)
+        ](
+            ownerId integer[input model . ownerId, max 9223372036854775807]
+            name text[input model . name, min 2, max 40]
+            birthdate date[input model . birthdate]
+            petType PetTypeDropDown[input model . petType]
+            vaccinated boolean[input model . vaccinated]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.PetApi.createPet(model . ownerId, model . name, model . birthdate, model . petType, model . vaccinated) {
+                on success goto petsPage
+            }
+        }
+
+        PetTypeDropDown dropdown[
+            enum backend.PetType
+            params(selected optional backend.PetType)
+            model
+            visible
+        ] {
+            init action
+            selected event(item backend.PetType)
+            select action(item backend.PetType) {
+                params.selected = action.item
+                fire PetTypeDropDown.selected(action . item)
+            }
+        }
+
+        signInForm form[
+            submit backend.AuthenticationApi.signIn[type manual]
+            params(model optional dto(
+                    email text[min 6, max 128, email]
+                    password text[min 6, max 255, sensitive]
+                ))
+            model(email text[min 6, max 128, email], password text[min 6, max 255, sensitive])
+            invisible
+            visible(email, password)
+        ](
+            email text[input model . email, min 6, max 128, email]
+            password text[input model . password, min 6, max 255, sensitive]
+            forgotPassword link[goto forgotPasswordPage]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.signIn(model . email, model . password)
+        }
+
+        signUpForm form[
+            submit backend.AuthenticationApi.signUp[type manual]
+            params(model optional dto(
+                    firstName text[min 1, max 40]
+                    lastName text[min 1, max 60]
+                    birthdate date
+                    active boolean
+                    email text[min 6, max 128, email]
+                    password text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                ))
+            model(firstName text[min 1, max 40], lastName text[min 1, max 60], birthdate date, active boolean, email text[min 6, max 128, email],
+                    password text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(firstName, lastName, birthdate, active, email,
+                    password)
+        ](
+            firstName text[input model . firstName, min 1, max 40]
+            lastName text[input model . lastName, min 1, max 60]
+            birthdate date[input model . birthdate]
+            active boolean[input model . active]
+            email text[input model . email, min 6, max 128, email]
+            password text[input model . password, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.signUp(model . firstName, model . lastName, model . birthdate, model . active, model . email,
+                    model . password) {
+                on success goto signInPage
+            }
+        }
+
+        verifyEmailForm form[
+            submit backend.AuthenticationApi.verifyEmail[type manual]
+            params(emailVerificationCode text[min 64, max 64])
+            model(emailVerificationCode text[min 64, max 64, sensitive])
+            invisible
+            visible(emailVerificationCode)
+        ](
+            emailVerificationCode text[input model . emailVerificationCode, min 64, max 64, sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.verifyEmail(model . emailVerificationCode) {
+                on success goto signInPage
+            }
+        }
+
+        forgotPasswordForm form[
+            submit backend.AuthenticationApi.forgotPassword[type manual]
+            params(model optional dto(
+                    email text[min 6, max 128, email]
+                ))
+            model(email text[min 6, max 128, email])
+            invisible
+            visible(email)
+        ](
+            email text[input model . email, min 6, max 128, email]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.forgotPassword(model . email) {
+                on success confirm
+            }
+        }
+
+        resetPasswordForm form[
+            submit backend.AuthenticationApi.resetPassword[type manual]
+            params(resetPasswordCode text[min 64, max 64])
+            model(resetPasswordCode text[min 64, max 64, sensitive], newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(resetPasswordCode, newPassword)
+        ](
+            resetPasswordCode text[input model . resetPasswordCode, min 64, max 64, sensitive]
+            newPassword text[input model . newPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.resetPassword(model . resetPasswordCode, model . newPassword) {
+                on success goto signInPage
+            }
+        }
+    )
+
+    adminPortal client[
+        template angular
+        path /admin
+        connectedTo(
+            backend.AuthenticationApi.refreshToken
+            backend.AuthenticationApi.signIn
+            backend.AuthenticationApi.signUp
+            backend.AuthenticationApi.forgotPassword
+            backend.AuthenticationApi.resetPassword
+            backend.AuthenticationApi.verifyEmail
+            backend.AuthenticationApi.changePassword
+            backend.UserApi.readUser
+            backend.UserApi.createUser
+            backend.UserApi.updateUser
+            backend.UserApi.deleteUser
+            backend.UserApi.users
+            backend.UserApi.nonAdmins
+            backend.UserApi.adminUsers
+            backend.UserApi.setUserActiveStatusSimple
+            backend.UserApi.getActiveUser
+            backend.OwnerApi.readOwner
+            backend.OwnerApi.createOwner
+            backend.OwnerApi.updateOwner
+            backend.OwnerApi.deleteOwner
+            backend.OwnerApi.allOwners
+            backend.OwnerApi.ownersForAddress
+            backend.OwnerApi.ownersWithPets
+            backend.OwnerApi.ownersPets
+            backend.OwnerApi.myPets
+            backend.OwnerApi.ownerVets
+            backend.VetApi.readVet
+            backend.VetApi.createVet
+            backend.VetApi.updateVet
+            backend.VetApi.deleteVet
+            backend.VetApi.vetsWithSpecialties
+            backend.VetApi.vetInfo
+            backend.PetApi.readPet
+            backend.PetApi.createPet
+            backend.PetApi.updatePet
+            backend.PetApi.deletePet
+            backend.PetApi.pets
+            backend.PetApi.findPetbyType
+            backend.VisitApi.readVisit
+            backend.VisitApi.createVisit
+            backend.VisitApi.updateVisit
+            backend.VisitApi.deleteVisit
+            backend.VisitApi.vetVisits
+            backend.VisitApi.scheduledVisits
+            backend.VisitApi.myVisits
+            backend.FileApi.findFile
+        )
+        owners(duskovesin)
+        i18n en
+        home signInPage
+    ](
+
+        signInPage page[
+            path /sign-in
+            params
+            model
+        ](
+            signInForm signInForm[input none]
+            signUp link[goto signUpPage]
+        ) {
+            init action
+        }
+
+        signUpPage page[
+            path /sign-up
+            params
+            model
+        ](
+            signUpForm signUpForm[input none]
+            signIn link[goto signInPage]
+        ) {
+            init action
+        }
+
+        verifyEmailPage page[
+            path /verify-email/:emailVerificationCode
+            params(emailVerificationCode text[min 64, max 64])
+            model
+        ](
+            verifyEmailForm verifyEmailForm[input params . emailVerificationCode]
+        ) {
+            init action
+        }
+
+        forgotPasswordPage page[
+            path /forgot-password
+            params
+            model
+        ](
+            forgotPasswordForm forgotPasswordForm[input none]
+        ) {
+            init action
+        }
+
+        resetPasswordPage page[
+            path /reset-password/:resetPasswordCode
+            params(resetPasswordCode text[min 64, max 64])
+            model
+        ](
+            resetPasswordForm resetPasswordForm[input params . resetPasswordCode]
+        ) {
+            init action
+        }
+
+        changePasswordForm form[
+            submit backend.AuthenticationApi.changePassword[type manual]
+            params(model optional dto(
+                    oldPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                    newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                ))
+            model(oldPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive], newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(oldPassword, newPassword)
+        ](
+            oldPassword text[input model . oldPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            newPassword text[input model . newPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.changePassword(model . oldPassword, model . newPassword) {
+                on success goto signInPage
+            }
+        }
+
+        signInForm form[
+            submit backend.AuthenticationApi.signIn[type manual]
+            params(model optional dto(
+                    email text[min 6, max 128, email]
+                    password text[min 6, max 255, sensitive]
+                ))
+            model(email text[min 6, max 128, email], password text[min 6, max 255, sensitive])
+            invisible
+            visible(email, password)
+        ](
+            email text[input model . email, min 6, max 128, email]
+            password text[input model . password, min 6, max 255, sensitive]
+            forgotPassword link[goto forgotPasswordPage]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.signIn(model . email, model . password)
+        }
+
+        signUpForm form[
+            submit backend.AuthenticationApi.signUp[type manual]
+            params(model optional dto(
+                    firstName text[min 1, max 40]
+                    lastName text[min 1, max 60]
+                    birthdate date
+                    active boolean
+                    email text[min 6, max 128, email]
+                    password text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+                ))
+            model(firstName text[min 1, max 40], lastName text[min 1, max 60], birthdate date, active boolean, email text[min 6, max 128, email],
+                    password text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(firstName, lastName, birthdate, active, email,
+                    password)
+        ](
+            firstName text[input model . firstName, min 1, max 40]
+            lastName text[input model . lastName, min 1, max 60]
+            birthdate date[input model . birthdate]
+            active boolean[input model . active]
+            email text[input model . email, min 6, max 128, email]
+            password text[input model . password, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.signUp(model . firstName, model . lastName, model . birthdate, model . active, model . email,
+                    model . password) {
+                on success goto signInPage
+            }
+        }
+
+        verifyEmailForm form[
+            submit backend.AuthenticationApi.verifyEmail[type manual]
+            params(emailVerificationCode text[min 64, max 64])
+            model(emailVerificationCode text[min 64, max 64, sensitive])
+            invisible
+            visible(emailVerificationCode)
+        ](
+            emailVerificationCode text[input model . emailVerificationCode, min 64, max 64, sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.verifyEmail(model . emailVerificationCode) {
+                on success goto signInPage
+            }
+        }
+
+        forgotPasswordForm form[
+            submit backend.AuthenticationApi.forgotPassword[type manual]
+            params(model optional dto(
+                    email text[min 6, max 128, email]
+                ))
+            model(email text[min 6, max 128, email])
+            invisible
+            visible(email)
+        ](
+            email text[input model . email, min 6, max 128, email]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.forgotPassword(model . email) {
+                on success confirm
+            }
+        }
+
+        resetPasswordForm form[
+            submit backend.AuthenticationApi.resetPassword[type manual]
+            params(resetPasswordCode text[min 64, max 64])
+            model(resetPasswordCode text[min 64, max 64, sensitive], newPassword text[min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive])
+            invisible
+            visible(resetPasswordCode, newPassword)
+        ](
+            resetPasswordCode text[input model . resetPasswordCode, min 64, max 64, sensitive]
+            newPassword text[input model . newPassword, min 6, max 255, regex "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$", sensitive]
+            submit button {
+                on click do submit
+            }
+        ) {
+            init action
+            submit action call backend.AuthenticationApi.resetPassword(model . resetPasswordCode, model . newPassword) {
+                on success goto signInPage
+            }
+        }
+    )
+)
