@@ -1,0 +1,3 @@
+tests backend.UserApi.nonAdmins(
+    test nonAdmins
+)

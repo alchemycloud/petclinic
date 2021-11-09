@@ -1,0 +1,3 @@
+tests backend.AuthenticationApi.signUp(
+    test signUp
+)

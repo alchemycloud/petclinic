@@ -1,0 +1,13 @@
+# Server backend
+backend/.history/ linguist-generated
+
+backend/src/main/java/co/drytools/backend/model/ linguist-generated
+backend/src/main/java/co/drytools/backend/api/dto/ linguist-generated
+backend/src/main/java/co/drytools/backend/api/*Caller.java linguist-generated
+backend/src/main/java/co/drytools/backend/rest/ linguist-generated
+backend/src/main/java/co/drytools/backend/sqs/ linguist-generated
+backend/src/main/java/co/drytools/backend/spi/ linguist-generated
+
+
+
+uiTests/screenshots/ linguist-generated

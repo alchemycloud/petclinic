@@ -1,0 +1,39 @@
+/* ==========================================================================
+   #Dialog
+   ========================================================================== */
+.c-dialog {
+  .mat-dialog-container {
+    padding: 0;
+    position: relative;
+  }
+}
+  .c-dialog__close {
+    position: absolute !important;
+    right:  0;
+    top:    0;
+    color: #fff;
+    font-size: 26px;
+  }
+
+  .c-dialog__header {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 28px;
+    padding: 8px 16px;
+    color: #fff;
+    background-color: $blue-500;
+    margin: 0 !important;
+  }
+
+  .c-dialog__content {
+    padding: 28px 16px !important;
+    margin: 0 !important;
+    line-height: 20px;
+  }
+  
+  .c-dialog__actions {
+    padding: 16px !important;
+    margin: 0 !important;
+    border-top: 1px solid $gray-300;
+  }
+
