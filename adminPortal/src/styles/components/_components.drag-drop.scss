@@ -1,0 +1,38 @@
+/* ==========================================================================
+   #Drag and drop
+   ========================================================================== */
+.c-drag {
+
+  &.cdk-drop-list-dragging {
+
+    .c-drag__item {
+
+      /**
+       * Add some animations when dragging the item
+       */
+      &:not(.cdk-drag-placeholder) {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+  }
+}
+
+  .c-drag__handle {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+
+    mat-icon {
+      vertical-align: middle;
+    }
+  }
+
+
+/**
+ * Add some animations when dropping the item
+ */
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-placeholder { opacity: 0; }
+

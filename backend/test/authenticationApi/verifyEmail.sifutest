@@ -1,0 +1,3 @@
+tests backend.AuthenticationApi.verifyEmail(
+    test verifyEmail
+)

@@ -1,0 +1,114 @@
+<form (ngSubmit)="onSubmitClick()"
+      name="signUpForm"
+      [formGroup]="formGroup"
+      novalidate>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_UP_FORM_FIRST_NAME">First name</mat-label>
+        <input inputAutoFocus
+               matInput
+               formControlName="firstName"
+               required
+               data-qa="firstName"
+               type="text"
+               i18n-placeholder="@@SIGN_UP_FORM_FIRST_NAME"
+               placeholder="First name"
+               autocomplete="off" />
+        <mat-error *ngIf="firstNameControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_FIRST_NAME_REQUIRED">First name is required</mat-error>
+        <mat-error *ngIf="firstNameControl.hasError('minlength')"
+                   i18n="@@SIGN_UP_FORM_FIRST_NAME_MIN">First name min 1 characters</mat-error>
+        <mat-error *ngIf="firstNameControl.hasError('maxlength')"
+                   i18n="@@SIGN_UP_FORM_FIRST_NAME_MAX">First name max 40 characters</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_UP_FORM_LAST_NAME">Last name</mat-label>
+        <input matInput
+               formControlName="lastName"
+               required
+               data-qa="lastName"
+               type="text"
+               i18n-placeholder="@@SIGN_UP_FORM_LAST_NAME"
+               placeholder="Last name"
+               autocomplete="off" />
+        <mat-error *ngIf="lastNameControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_LAST_NAME_REQUIRED">Last name is required</mat-error>
+        <mat-error *ngIf="lastNameControl.hasError('minlength')"
+                   i18n="@@SIGN_UP_FORM_LAST_NAME_MIN">Last name min 1 characters</mat-error>
+        <mat-error *ngIf="lastNameControl.hasError('maxlength')"
+                   i18n="@@SIGN_UP_FORM_LAST_NAME_MAX">Last name max 60 characters</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_UP_FORM_BIRTHDATE">Birthdate</mat-label>
+        <input matInput
+               formControlName="birthdate"
+               [ngxMatDatetimePicker]="birthdate"
+               required
+               data-qa="birthdate"
+               i18n-placeholder="@@SIGN_UP_FORM_BIRTHDATE"
+               placeholder="Birthdate"
+               autocomplete="off">
+        <mat-datepicker-toggle matSuffix
+                               [for]="birthdate"></mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #birthdate
+                                 [enableMeridian]="true"></ngx-mat-datetime-picker>
+        <mat-error *ngIf="birthdateControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_BIRTHDATE_REQUIRED">Birthdate is required</mat-error>
+    </mat-form-field>
+    <mat-checkbox formControlName="active"
+                  data-qa="active"
+                  i18n="@@SIGN_UP_FORM_ACTIVE">
+        Active
+    </mat-checkbox>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_UP_FORM_EMAIL">Email</mat-label>
+        <input matInput
+               formControlName="email"
+               required
+               data-qa="email"
+               type="email"
+               i18n-placeholder="@@SIGN_UP_FORM_EMAIL"
+               placeholder="Email"
+               autocomplete="off" />
+        <mat-error *ngIf="emailControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_EMAIL_REQUIRED">Email is required</mat-error>
+        <mat-error *ngIf="emailControl.hasError('minlength')"
+                   i18n="@@SIGN_UP_FORM_EMAIL_MIN">Email min 6 characters</mat-error>
+        <mat-error *ngIf="emailControl.hasError('maxlength')"
+                   i18n="@@SIGN_UP_FORM_EMAIL_MAX">Email max 128 characters</mat-error>
+        <mat-error *ngIf="emailControl.hasError('email')"
+                   i18n="@@SIGN_UP_FORM_EMAIL_EMAIL">Email email</mat-error>
+        <mat-error *ngIf="emailControl.hasError('pattern')"
+                   i18n="@@SIGN_UP_FORM_EMAIL_PATTERN">Email pattern</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_UP_FORM_PASSWORD">Password</mat-label>
+        <input matInput
+               formControlName="password"
+               required
+               data-qa="password"
+               type="password"
+               i18n-placeholder="@@SIGN_UP_FORM_PASSWORD"
+               placeholder="Password"
+               autocomplete="off" />
+        <mat-error *ngIf="passwordControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_PASSWORD_REQUIRED">Password is required</mat-error>
+        <mat-error *ngIf="passwordControl.hasError('minlength')"
+                   i18n="@@SIGN_UP_FORM_PASSWORD_MIN">Password min 6 characters</mat-error>
+        <mat-error *ngIf="passwordControl.hasError('maxlength')"
+                   i18n="@@SIGN_UP_FORM_PASSWORD_MAX">Password max 255 characters</mat-error>
+        <mat-error *ngIf="passwordControl.hasError('pattern')"
+                   i18n="@@SIGN_UP_FORM_PASSWORD_PATTERN">Password pattern</mat-error>
+    </mat-form-field>
+    <button mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="submitDisabled || !formGroup.valid"
+            data-qa="submit">
+        <ng-container i18n="@@SIGN_UP_FORM_SUBMIT">Submit</ng-container>
+    </button>
+</form>

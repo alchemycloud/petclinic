@@ -1,0 +1,86 @@
+<form (ngSubmit)="onSubmitClick()"
+      name="petUpdateForm"
+      [formGroup]="formGroup"
+      novalidate>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@PET_UPDATE_FORM_OWNER_ID">Owner id</mat-label>
+        <input matInput
+               formControlName="ownerId"
+               required
+               data-qa="ownerId"
+               type="number"
+               i18n-placeholder="@@PET_UPDATE_FORM_OWNER_ID"
+               placeholder="Owner id"
+               autocomplete="off" />
+        <mat-error *ngIf="ownerIdControl.hasError('required')"
+                   i18n="@@PET_UPDATE_FORM_OWNER_ID_REQUIRED">Owner id is required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@PET_UPDATE_FORM_NAME">Name</mat-label>
+        <input matInput
+               formControlName="name"
+               required
+               data-qa="name"
+               type="text"
+               i18n-placeholder="@@PET_UPDATE_FORM_NAME"
+               placeholder="Name"
+               autocomplete="off" />
+        <mat-error *ngIf="nameControl.hasError('required')"
+                   i18n="@@PET_UPDATE_FORM_NAME_REQUIRED">Name is required</mat-error>
+        <mat-error *ngIf="nameControl.hasError('minlength')"
+                   i18n="@@PET_UPDATE_FORM_NAME_MIN">Name min 2 characters</mat-error>
+        <mat-error *ngIf="nameControl.hasError('maxlength')"
+                   i18n="@@PET_UPDATE_FORM_NAME_MAX">Name max 40 characters</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@PET_UPDATE_FORM_BIRTHDATE">Birthdate</mat-label>
+        <input matInput
+               formControlName="birthdate"
+               [ngxMatDatetimePicker]="birthdate"
+               required
+               data-qa="birthdate"
+               i18n-placeholder="@@PET_UPDATE_FORM_BIRTHDATE"
+               placeholder="Birthdate"
+               autocomplete="off">
+        <mat-datepicker-toggle matSuffix
+                               [for]="birthdate"></mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #birthdate
+                                 [enableMeridian]="true"></ngx-mat-datetime-picker>
+        <mat-error *ngIf="birthdateControl.hasError('required')"
+                   i18n="@@PET_UPDATE_FORM_BIRTHDATE_REQUIRED">Birthdate is required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@PET_UPDATE_FORM_PET_TYPE">Pet type</mat-label>
+        <pet-type-drop-down data-qa="petType"
+                            formControlName="petType"
+                            required="true"
+                            i18n-placeholder="@@PET_UPDATE_FORM_PET_TYPE"
+                            placeholder="Pet type"> </pet-type-drop-down>
+        <mat-error *ngIf="petTypeControl.hasError('required')"
+                   i18n="@@PET_UPDATE_FORM_PET_TYPE_REQUIRED">Pet type is required</mat-error>
+    </mat-form-field>
+    <mat-checkbox formControlName="vaccinated"
+                  data-qa="vaccinated"
+                  i18n="@@PET_UPDATE_FORM_VACCINATED">
+        Vaccinated
+    </mat-checkbox>
+    <button mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="onDeleteButtonClick()"
+            [disabled]="deleteButtonDisabled"
+            data-qa="deleteButton">
+        <ng-container i18n="@@PET_UPDATE_FORM_DELETE_BUTTON">Delete button</ng-container>
+    </button>
+    <button mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="submitDisabled || !formGroup.valid"
+            data-qa="submit">
+        <ng-container i18n="@@PET_UPDATE_FORM_SUBMIT">Submit</ng-container>
+    </button>
+</form>

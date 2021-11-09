@@ -1,0 +1,37 @@
+/* ==========================================================================
+	   #GRID
+	   ========================================================================== */
+
+	/**
+	 * This is update for flex-grid. It adds bottom margin on grid cell
+	 *
+	 */
+
+	/**
+	 * 1. The map $inuit-flexgrid-spacing-sizes contains a `null` key which
+	 *    will be our default gutter size.
+	 * 2. Add a negative margin on one side only. That way we aren't required to use
+	 *    a wrapper with the same amount of spacing, though it's common to do so.
+	 * 3. Neutralize the left margin on `o-grid`.
+	 */
+
+	@each $size-namespace, $size in $inuit-flexgrid-spacing-sizes {
+
+	  .o-grid-bottom-gutter#{$size-namespace} { /* [1] */
+
+	    & > .o-grid__cell {
+	      margin-bottom: $size; /* [3] */
+	    }
+	  }
+	}
+
+
+  /**
+   * Set grid items to width auto
+   */
+  .o-grid--item-auto {
+
+	  > .o-grid__cell {
+		  width: auto;
+	  }
+  }
