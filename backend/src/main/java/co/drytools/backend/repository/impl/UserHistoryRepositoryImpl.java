@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,11 +110,11 @@ public class UserHistoryRepositoryImpl extends AbstractSimpleRepositoryImpl<User
                 .select(qUser, qLastHistory)
                 .from(qUser)
                 .leftJoin(qUser.lastHistory, qLastHistory)
-                .where(qUser.id.in(ids.stream().map(UserId::getValue).collect(Collectors.toList())))
+                .where(qUser.id.in(ids.stream().map(UserId::getValue).toList()))
                 .fetch()
                 .stream()
                 .map(t -> Pair.of(t.get(qUser), Optional.ofNullable(t.get(qLastHistory))))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -124,7 +123,7 @@ public class UserHistoryRepositoryImpl extends AbstractSimpleRepositoryImpl<User
         final QUserHistory qUserHistory = QUserHistory.userHistory;
         return factory.select(qUserHistory)
                 .from(qUserHistory)
-                .where(qUserHistory.reference.id.in(referenceId.stream().map(UserId::getValue).collect(Collectors.toList())))
+                .where(qUserHistory.reference.id.in(referenceId.stream().map(UserId::getValue).toList()))
                 .orderBy(qUserHistory.id.asc().nullsLast())
                 .fetch();
     }
@@ -412,7 +411,7 @@ public class UserHistoryRepositoryImpl extends AbstractSimpleRepositoryImpl<User
         }
         return factory.select(getEntityPathBase())
                 .from(QUserHistory.userHistory)
-                .where(QUserHistory.userHistory.id.in(ids.stream().map(UserHistoryId::getValue).collect(Collectors.toList())))
+                .where(QUserHistory.userHistory.id.in(ids.stream().map(UserHistoryId::getValue).toList()))
                 .fetch();
     }
 

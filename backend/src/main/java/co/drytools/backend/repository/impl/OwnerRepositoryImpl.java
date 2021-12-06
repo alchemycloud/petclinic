@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -132,7 +131,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerDeactivatedOwnerWithPetsTuple(t.get(qOwner), t.get(qPet), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -149,7 +148,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerFindOwnerVetsTuple(t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -216,7 +215,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerOwnersForAddressTuple(t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -235,7 +234,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerFindOwnersForAddressTuple(t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -265,7 +264,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerOwnersWithPetsTuple(t.get(qOwner), t.get(qPet), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -284,7 +283,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerOwnersPetsTuple(t.get(qOwner), t.get(qPet), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -303,7 +302,7 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
                 .fetch()
                 .stream()
                 .map(t -> new OwnerMyPetsTuple(t.get(qOwner), t.get(qPet), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -311,9 +310,6 @@ public class OwnerRepositoryImpl extends AbstractSimpleRepositoryImpl<Owner, Own
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
-        return factory.select(getEntityPathBase())
-                .from(QOwner.owner)
-                .where(QOwner.owner.id.in(ids.stream().map(OwnerId::getValue).collect(Collectors.toList())))
-                .fetch();
+        return factory.select(getEntityPathBase()).from(QOwner.owner).where(QOwner.owner.id.in(ids.stream().map(OwnerId::getValue).toList())).fetch();
     }
 }

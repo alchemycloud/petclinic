@@ -19,21 +19,19 @@ export class ForgotPasswordFormModel {
   styleUrls: ['./forgotPasswordForm.form.scss']
 })
 export class ForgotPasswordForm implements OnInit, AfterViewInit {
-  @Input() model: ForgotPasswordFormModel;
+  @Input() model: ForgotPasswordFormModel = new ForgotPasswordFormModel('');
   submitDisabled = false;
   formGroup: FormGroup;
   emailControl: FormControl;
 
   constructor(private readonly authenticationApi: AuthenticationApiService, private readonly dialog: MatDialog, private readonly fb: FormBuilder) {
-    if (this.model == null) {
-      this.model = new ForgotPasswordFormModel('');
-    }
+
   }
 
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'email': new FormControl(this.model.email, [
+      email: new FormControl(this.model.email, [
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(128),

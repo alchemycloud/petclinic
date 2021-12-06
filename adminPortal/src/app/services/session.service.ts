@@ -40,7 +40,7 @@ export class SessionService {
   }
 
   public getSessionData(): SessionData {
-    if (localStorage.getItem('accessToken') != null) {
+    if (localStorage.getItem('accessToken') !== null) {
       return new SessionData(
         localStorage.getItem('accessToken'),
         localStorage.getItem('refreshToken'),

@@ -17,7 +17,7 @@ export class ResetPasswordPageModel {
   styleUrls: ['./resetPasswordPage.page.scss']
 })
 export class ResetPasswordPage implements OnInit, AfterViewInit {
-  @Input() resetPasswordCode: string;
+  @Input() resetPasswordCode: string = null;
   @ViewChild(ResetPasswordForm)
   private readonly resetPasswordFormElement: ResetPasswordForm;
   model: ResetPasswordPageModel = new ResetPasswordPageModel();

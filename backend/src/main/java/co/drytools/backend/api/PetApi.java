@@ -22,7 +22,6 @@ import co.drytools.backend.repository.PetRepository;
 import co.drytools.backend.repository.tuple.PetFindPetsTuple;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,7 @@ public class PetApi {
                                     final String responseUserLastName = tuple.getUser().getLastName();
                                     return new PetsResponse(responseId, responseName, responsePetType, responseUserLastName);
                                 })
-                        .collect(Collectors.toList());
+                        .toList();
         return new PagedDTO<>(dtos, totalCount);
     }
 
@@ -130,6 +129,6 @@ public class PetApi {
                             final PetType responsePetType = model.getPetType();
                             return new FindPetbyTypeResponse(responseName, responsePetType);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -17,7 +17,7 @@ export class VerifyEmailPageModel {
   styleUrls: ['./verifyEmailPage.page.scss']
 })
 export class VerifyEmailPage implements OnInit, AfterViewInit {
-  @Input() emailVerificationCode: string;
+  @Input() emailVerificationCode: string = null;
   @ViewChild(VerifyEmailForm)
   private readonly verifyEmailFormElement: VerifyEmailForm;
   model: VerifyEmailPageModel = new VerifyEmailPageModel();

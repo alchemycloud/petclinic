@@ -23,7 +23,7 @@ export class ChangePasswordFormModel {
   styleUrls: ['./changePasswordForm.form.scss']
 })
 export class ChangePasswordForm implements OnInit, AfterViewInit {
-  @Input() model: ChangePasswordFormModel;
+  @Input() model: ChangePasswordFormModel = new ChangePasswordFormModel('', '');
   submitDisabled = false;
   formGroup: FormGroup;
   oldPasswordControl: FormControl;
@@ -31,24 +31,21 @@ export class ChangePasswordForm implements OnInit, AfterViewInit {
 
   constructor(private readonly authenticationApi: AuthenticationApiService, private readonly sessionService: SessionService,
               private readonly router: Router, private readonly fb: FormBuilder) {
-    if (this.model == null) {
-      this.model = new ChangePasswordFormModel('', '');
-    }
+
   }
 
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'oldPassword': new FormControl(this.model.oldPassword, [
+      oldPassword: new FormControl(this.model.oldPassword, [
         Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(255),
-        Validators.pattern(/^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$/)], []),
-      'newPassword': new FormControl(this.model.newPassword, [
+        Validators.minLength(12),
+        Validators.maxLength(128)], []),
+      newPassword: new FormControl(this.model.newPassword, [
         Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(255),
-        Validators.pattern(/^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$/)], [])
+        Validators.minLength(12),
+        Validators.maxLength(128),
+        Validators.pattern(/^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){12,128}$/)], [])
     });
     this.oldPasswordControl = this.formGroup.get('oldPassword') as FormControl;
     this.newPasswordControl = this.formGroup.get('newPassword') as FormControl;

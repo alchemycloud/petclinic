@@ -39,54 +39,38 @@ public class AuditContext {
         final UpdatedFieldsDto updatedFieldsDto = map.get(object);
 
         switch (updatedFieldsDto.getAuditType()) {
-            case CREATE:
+            case CREATE -> {
                 switch (type) {
-                    case CREATE:
-                        // do nothing
-                        break;
-                    case UPDATE:
-                        // create only registers entity but no values, fields are submitted via setter=update
-                        // set only new value
-                        updatedFieldsDto.registerFieldValue(propertyPath.get(), newValue.orElse(null));
-                        break;
-                    case DELETE:
-                        // create then delete, is like nothing has happened
-                        map.remove(object);
-                        break;
+                    case CREATE -> {}
+                    case UPDATE -> updatedFieldsDto.registerFieldValue(propertyPath.get(), newValue.orElse(null));
+                    case DELETE -> map.remove(object);
+                    default -> throw new IllegalStateException("Unexpected value: " + type);
                 }
-                break;
-            case UPDATE:
+            }
+            case UPDATE -> {
                 switch (type) {
-                    case CREATE:
-                        throw new IllegalStateException("This cant happen");
-                    case UPDATE:
-                        // overwrite the last value
-                        // set only new value
-                        updatedFieldsDto.registerFieldValue(propertyPath.get(), newValue.orElse(null));
-                        break;
-                    case DELETE:
-                        // update then delete, delete is stronger
-                        final UpdatedFieldsDto newDto = new UpdatedFieldsDto(type, auditMapper.apply(object));
-                        map.put(object, newDto);
-                        break;
+                    case CREATE -> throw new IllegalStateException("This cant happen");
+                    case UPDATE -> // overwrite the last value, set only new value
+                    updatedFieldsDto.registerFieldValue(propertyPath.get(), newValue.orElse(null));
+                    case DELETE -> // update then delete, delete is stronger
+                    map.put(object, new UpdatedFieldsDto(type, auditMapper.apply(object)));
+                    default -> throw new IllegalStateException("Unexpected value: " + type);
                 }
-                break;
-            case DELETE:
+            }
+            case DELETE -> {
                 switch (type) {
-                    case CREATE:
-                        // delete then create, create is stronger
-                        final UpdatedFieldsDto newDto = new UpdatedFieldsDto(type, auditMapper.apply(object));
-                        map.put(object, newDto);
-                        break;
-                    case DELETE:
-                        if (previouslyUnregistered) {
-                            // do nothing
-                            break;
+                    case CREATE -> // delete then create, create is stronger
+                    map.put(object, new UpdatedFieldsDto(type, auditMapper.apply(object)));
+                    case DELETE -> {
+                        if (!previouslyUnregistered) {
+                            throw new IllegalStateException("This cant happen");
                         }
-                    case UPDATE:
-                        throw new IllegalStateException("This cant happen");
+                        // do nothing
+                    }
+                    case UPDATE -> throw new IllegalStateException("This cant happen");
+                    default -> throw new IllegalStateException("Unexpected value: " + type);
                 }
-                break;
+            }
         }
     }
 

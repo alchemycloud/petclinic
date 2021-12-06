@@ -3,7 +3,6 @@ package co.drytools.backend.repository.util;
 import com.querydsl.core.types.Order;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class OrderableField<E extends Enum> {
@@ -42,6 +41,6 @@ public class OrderableField<E extends Enum> {
                             orderableField.setDirection(directions.get(i));
                             return orderableField;
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

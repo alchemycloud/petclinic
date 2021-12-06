@@ -1,7 +1,6 @@
 package co.drytools.backend.security;
 
 import co.drytools.backend.config.CustomProperties;
-import co.drytools.backend.model.User;
 import co.drytools.backend.model.enumeration.UserRole;
 import co.drytools.backend.util.TimeUtil;
 import io.jsonwebtoken.Claims;
@@ -9,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,18 +25,18 @@ public class JWTService {
 
     @Inject private CustomProperties customProperties;
 
-    public String createAccessToken(User principal, UserRole role) {
+    public String createAccessToken(Optional<String> principalEmail, UserRole role) {
         return Jwts.builder()
-                .claim(PRINCIPAL_EMAIL, principal.getEmail())
+                .claim(PRINCIPAL_EMAIL, principalEmail.orElse(null))
                 .claim(AUTHORITIES_KEY, role)
                 .signWith(SignatureAlgorithm.HS512, customProperties.getSecretKey())
                 .setExpiration(getValidity(customProperties.getAccessTokenValidityInSeconds()))
                 .compact();
     }
 
-    public String createRefreshToken(User principal) {
+    public String createRefreshToken(Optional<String> principalEmail) {
         return Jwts.builder()
-                .claim(PRINCIPAL_EMAIL, principal.getEmail())
+                .claim(PRINCIPAL_EMAIL, principalEmail.orElse(null))
                 .claim(AUTHORITIES_KEY, REFRESH_AUTHORITY)
                 .signWith(SignatureAlgorithm.HS512, customProperties.getSecretKey())
                 .setExpiration(getValidity(customProperties.getRefreshTokenValidityInSeconds()))
@@ -46,9 +46,9 @@ public class JWTService {
     Authentication getAuthentication(String token) {
         final Claims claims = getJwtClaims(token);
         final String role = claims.get(AUTHORITIES_KEY).toString();
-        final String principalEmail = claims.get(PRINCIPAL_EMAIL).toString();
+        final Optional<String> principalEmail = Optional.ofNullable(claims.get(PRINCIPAL_EMAIL)).map(Object::toString);
 
-        return new PreAuthenticatedAuthenticationToken(principalEmail, null, Collections.singletonList(new SimpleGrantedAuthority(role)));
+        return new PreAuthenticatedAuthenticationToken(principalEmail.orElse(null), null, Collections.singletonList(new SimpleGrantedAuthority(role)));
     }
 
     public Claims getJwtClaims(String token) {

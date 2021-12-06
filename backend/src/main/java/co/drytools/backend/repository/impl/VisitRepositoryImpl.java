@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -134,7 +133,7 @@ public class VisitRepositoryImpl extends AbstractSimpleRepositoryImpl<Visit, Vis
                 .fetch()
                 .stream()
                 .map(t -> new VisitVetVisitsTuple(t.get(qVisit), t.get(qVet), t.get(qPet)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -155,7 +154,7 @@ public class VisitRepositoryImpl extends AbstractSimpleRepositoryImpl<Visit, Vis
                 .fetch()
                 .stream()
                 .map(t -> new VisitFindVetVisitsTuple(t.get(qVisit), t.get(qVet), t.get(qPet)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -201,7 +200,7 @@ public class VisitRepositoryImpl extends AbstractSimpleRepositoryImpl<Visit, Vis
                 .fetch()
                 .stream()
                 .map(t -> new VisitMyVisitsTuple(t.get(qVisit), t.get(qPet), t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -209,9 +208,6 @@ public class VisitRepositoryImpl extends AbstractSimpleRepositoryImpl<Visit, Vis
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
-        return factory.select(getEntityPathBase())
-                .from(QVisit.visit)
-                .where(QVisit.visit.id.in(ids.stream().map(VisitId::getValue).collect(Collectors.toList())))
-                .fetch();
+        return factory.select(getEntityPathBase()).from(QVisit.visit).where(QVisit.visit.id.in(ids.stream().map(VisitId::getValue).toList())).fetch();
     }
 }

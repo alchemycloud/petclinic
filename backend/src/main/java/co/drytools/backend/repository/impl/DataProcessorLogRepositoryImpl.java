@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -170,7 +169,7 @@ public class DataProcessorLogRepositoryImpl extends AbstractSimpleRepositoryImpl
         }
         return factory.select(getEntityPathBase())
                 .from(QDataProcessorLog.dataProcessorLog)
-                .where(QDataProcessorLog.dataProcessorLog.id.in(ids.stream().map(DataProcessorLogId::getValue).collect(Collectors.toList())))
+                .where(QDataProcessorLog.dataProcessorLog.id.in(ids.stream().map(DataProcessorLogId::getValue).toList()))
                 .fetch();
     }
 }

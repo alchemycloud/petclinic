@@ -13,7 +13,7 @@ export class VetApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -31,24 +31,24 @@ export class VetApiService {
     );
   }
 
-  deleteVet(request: DeleteVetRequest): Observable<{}> {
-    return this.http.delete<{}>(
+  deleteVet(request: DeleteVetRequest): Observable<Record<string, never>> {
+    return this.http.delete<Record<string, never>>(
       environment.backendUrl + '/vet/${request.id}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('deleteVet'))
+      catchError(this.handleError<Record<string, never>>('deleteVet'))
     );
   }
 
   vetsWithSpecialties(request: VetDTO): Observable<Array<VetWithSpecialtiesDTO>> {
     let params: HttpParams = new HttpParams();
-    if (request.id != null) {
+    if (request.id !== null) {
       params = params.set('id', request.id.toString());
     }
-    if (request.firstName != null) {
+    if (request.firstName !== null) {
       params = params.set('firstName', request.firstName.toString());
     }
-    if (request.lastName != null) {
+    if (request.lastName !== null) {
       params = params.set('lastName', request.lastName.toString());
     }
 

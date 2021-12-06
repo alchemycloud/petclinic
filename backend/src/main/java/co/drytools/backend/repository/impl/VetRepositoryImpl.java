@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -72,7 +71,7 @@ public class VetRepositoryImpl extends AbstractSimpleRepositoryImpl<Vet, VetId> 
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
-        return factory.select(getEntityPathBase()).from(QVet.vet).where(QVet.vet.id.in(ids.stream().map(VetId::getValue).collect(Collectors.toList()))).fetch();
+        return factory.select(getEntityPathBase()).from(QVet.vet).where(QVet.vet.id.in(ids.stream().map(VetId::getValue).toList())).fetch();
     }
 
     @Override

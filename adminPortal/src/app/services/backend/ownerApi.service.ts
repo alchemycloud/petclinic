@@ -14,7 +14,7 @@ export class OwnerApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -34,13 +34,13 @@ export class OwnerApiService {
 
   ownersForAddress(request: OwnersForAddressRequest): Observable<PagedDto<OwnersForAddressResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.address != null) {
+    if (request.address !== null) {
       params = params.set('address', request.address.toString());
     }
-    if (request.drop != null) {
+    if (request.drop !== null) {
       params = params.set('drop', request.drop.toString());
     }
-    if (request.take != null) {
+    if (request.take !== null) {
       params = params.set('take', request.take.toString());
     }
 
@@ -71,12 +71,12 @@ export class OwnerApiService {
     );
   }
 
-  deleteOwner(request: DeleteOwnerRequest): Observable<{}> {
-    return this.http.delete<{}>(
+  deleteOwner(request: DeleteOwnerRequest): Observable<Record<string, never>> {
+    return this.http.delete<Record<string, never>>(
       environment.backendUrl + '/owner/${request.id}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('deleteOwner'))
+      catchError(this.handleError<Record<string, never>>('deleteOwner'))
     );
   }
 
@@ -91,7 +91,7 @@ export class OwnerApiService {
 
   allOwners(request: AllOwnersRequest): Observable<Array<AllOwnersResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.param != null) {
+    if (request.param !== null) {
       params = params.set('param', request.param.toString());
     }
 

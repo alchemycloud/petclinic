@@ -49,8 +49,8 @@ export class Selected {
 })
 export class PetsList implements OnChanges, OnInit, AfterViewInit {
   resultsLength = 0;
-  @Input() drop: number;
-  @Input() take: number;
+  @Input() drop: number = null;
+  @Input() take: number = null;
   model: Array<PetsListModel> = [];
   @Output() onSelected = new EventEmitter<Selected>();
   @ViewChild(MatPaginator) matPaginator: MatPaginator;
@@ -92,9 +92,7 @@ export class PetsList implements OnChanges, OnInit, AfterViewInit {
     this.petApi.pets(new PetsRequest(this.drop,
       this.take))
       .subscribe((response: PagedDto<PetsResponse>) => {
-        this.model = response.results.map(item => {
-          return new PetsListModel(item.id, item.name, item.petType, item.userLastName);
-        });
+        this.model = response.results.map(item => new PetsListModel(item.id, item.name, item.petType, item.userLastName));
         this.resultsLength = response.totalCount;
       }, (_) => {
       });

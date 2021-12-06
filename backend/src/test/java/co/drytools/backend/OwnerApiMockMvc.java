@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -171,7 +170,7 @@ public interface OwnerApiMockMvc {
                                         final String userLastName = (String) r.get(OwnersForAddressResponse.USER_LAST_NAME.getPath());
                                         return new OwnersForAddressResponse(id, userEmail, userFirstName, userLastName);
                                     })
-                            .collect(Collectors.toList());
+                            .toList();
             return new PagedDTO<>(dtos, data.getTotalCount());
         }
 

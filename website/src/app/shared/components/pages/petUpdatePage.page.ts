@@ -21,7 +21,7 @@ export class PetUpdatePageModel {
   styleUrls: ['./petUpdatePage.page.scss']
 })
 export class PetUpdatePage implements OnInit, AfterViewInit {
-  @Input() id: number;
+  @Input() id: number = null;
   @ViewChild(PrivateHeader)
   private readonly headerElement: PrivateHeader;
   @ViewChild(PetUpdateForm)

@@ -14,7 +14,7 @@ export class VisitApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -25,7 +25,7 @@ export class VisitApiService {
 
   myVisits(request: MyVisitsRequest): Observable<Array<MyVisitsResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.userIdId != null) {
+    if (request.userIdId !== null) {
       params = params.set('userIdId', request.userIdId.toString());
     }
 
@@ -65,24 +65,24 @@ export class VisitApiService {
     );
   }
 
-  deleteVisit(request: DeleteVisitRequest): Observable<{}> {
-    return this.http.delete<{}>(
+  deleteVisit(request: DeleteVisitRequest): Observable<Record<string, never>> {
+    return this.http.delete<Record<string, never>>(
       environment.backendUrl + '/visit/visit/${request.id}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('deleteVisit'))
+      catchError(this.handleError<Record<string, never>>('deleteVisit'))
     );
   }
 
   vetVisits(request: VetVisitsRequest): Observable<PagedDto<VetVisitsResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.userId != null) {
+    if (request.userId !== null) {
       params = params.set('userId', request.userId.toString());
     }
-    if (request.drop != null) {
+    if (request.drop !== null) {
       params = params.set('drop', request.drop.toString());
     }
-    if (request.take != null) {
+    if (request.take !== null) {
       params = params.set('take', request.take.toString());
     }
 

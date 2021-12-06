@@ -35,7 +35,7 @@ export class SignUpFormModel {
   styleUrls: ['./signUpForm.form.scss']
 })
 export class SignUpForm implements OnInit, AfterViewInit {
-  @Input() model: SignUpFormModel;
+  @Input() model: SignUpFormModel = new SignUpFormModel('', '', null, false, '', '');
   submitDisabled = false;
   formGroup: FormGroup;
   firstNameControl: FormControl;
@@ -47,36 +47,34 @@ export class SignUpForm implements OnInit, AfterViewInit {
 
   constructor(private readonly authenticationApi: AuthenticationApiService, private readonly sessionService: SessionService,
               private readonly router: Router, private readonly fb: FormBuilder) {
-    if (this.model == null) {
-      this.model = new SignUpFormModel('', '', null, false, '', '');
-    }
+
   }
 
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'firstName': new FormControl(this.model.firstName, [
+      firstName: new FormControl(this.model.firstName, [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(40)], []),
-      'lastName': new FormControl(this.model.lastName, [
+      lastName: new FormControl(this.model.lastName, [
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(60)], []),
-      'birthdate': new FormControl(this.model.birthdate, [
+      birthdate: new FormControl(this.model.birthdate, [
         Validators.required], []),
-      'active': new FormControl(this.model.active, [
+      active: new FormControl(this.model.active, [
         Validators.required], []),
-      'email': new FormControl(this.model.email, [
+      email: new FormControl(this.model.email, [
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(128),
         Validators.email], []),
-      'password': new FormControl(this.model.password, [
+      password: new FormControl(this.model.password, [
         Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(255),
-        Validators.pattern(/^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$/)], [])
+        Validators.minLength(12),
+        Validators.maxLength(128),
+        Validators.pattern(/^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){12,128}$/)], [])
     });
     this.firstNameControl = this.formGroup.get('firstName') as FormControl;
     this.lastNameControl = this.formGroup.get('lastName') as FormControl;

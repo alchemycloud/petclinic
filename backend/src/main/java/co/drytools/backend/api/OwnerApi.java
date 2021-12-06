@@ -35,7 +35,6 @@ import co.drytools.backend.service.SecurityService;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +122,7 @@ public class OwnerApi {
                             final String responseTelephone = model.getTelephone().orElse(null);
                             return new AllOwnersResponse(responseId, responseUserId, responseAddress, responseCity, responseTelephone);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PagedDTO<OwnersForAddressResponse> ownersForAddress(OwnersForAddressRequest dto) {
@@ -143,7 +142,7 @@ public class OwnerApi {
                                     final String responseUserLastName = tuple.getUser().getLastName();
                                     return new OwnersForAddressResponse(responseId, responseUserEmail, responseUserFirstName, responseUserLastName);
                                 })
-                        .collect(Collectors.toList());
+                        .toList();
         return new PagedDTO<>(dtos, totalCount);
     }
 
@@ -159,7 +158,7 @@ public class OwnerApi {
                             final String responseUserLastName = tuple.getUser().getLastName();
                             return new OwnersWithPetsResponse(responseUserFirstName, responseUserLastName);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<OwnersPetsResponse> ownersPets(OwnersPetsRequest dto) {
@@ -175,7 +174,7 @@ public class OwnerApi {
                             final String responsePetName = tuple.getPet().getName();
                             return new OwnersPetsResponse(responsePetId, responseId, responsePetName);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<MyPetsResponse> myPets() {
@@ -236,7 +235,7 @@ public class OwnerApi {
                                     responseUserResetPasswordCode,
                                     responseUserResetPasswordCodeTimestamp);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<OwnerVetsResponse> ownerVets() {
@@ -283,6 +282,6 @@ public class OwnerApi {
                                     responseUserResetPasswordCode,
                                     responseUserResetPasswordCodeTimestamp);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

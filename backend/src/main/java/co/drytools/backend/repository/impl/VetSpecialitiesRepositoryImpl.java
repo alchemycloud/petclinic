@@ -12,7 +12,6 @@ import com.querydsl.core.types.dsl.NumberPath;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -58,7 +57,7 @@ public class VetSpecialitiesRepositoryImpl extends AbstractSimpleRepositoryImpl<
         }
         return factory.select(getEntityPathBase())
                 .from(QVetSpecialities.vetSpecialities)
-                .where(QVetSpecialities.vetSpecialities.id.in(ids.stream().map(VetSpecialitiesId::getValue).collect(Collectors.toList())))
+                .where(QVetSpecialities.vetSpecialities.id.in(ids.stream().map(VetSpecialitiesId::getValue).toList()))
                 .fetch();
     }
 }

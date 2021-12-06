@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -80,7 +79,7 @@ public class VetSpecialityRepositoryImpl extends AbstractSimpleRepositoryImpl<Ve
         }
         return factory.select(getEntityPathBase())
                 .from(QVetSpeciality.vetSpeciality)
-                .where(QVetSpeciality.vetSpeciality.id.in(ids.stream().map(VetSpecialityId::getValue).collect(Collectors.toList())))
+                .where(QVetSpeciality.vetSpeciality.id.in(ids.stream().map(VetSpecialityId::getValue).toList()))
                 .fetch();
     }
 }

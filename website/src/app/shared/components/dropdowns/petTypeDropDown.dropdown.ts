@@ -41,12 +41,12 @@ export class Selected {
   ]
 })
 export class PetTypeDropDown implements OnInit, AfterViewInit, ControlValueAccessor, DoCheck, MatFormFieldControl<PetType>, OnDestroy {
-  @Input() selected: PetType;
+  @Input() selected: PetType = null;
   model: Array<PetType> = [];
   @Output() onSelected = new EventEmitter<Selected>();
   @ViewChild(MatSelect) selectBox: ElementRef;
   isDisabled: boolean;
-  @Output() onTouched = new EventEmitter<Boolean>();
+  @Output() onTouched = new EventEmitter<boolean>();
   ngControl: any;
   needsFiltering: boolean;
   public filterCtrl: FormControl = new FormControl();
@@ -63,7 +63,7 @@ export class PetTypeDropDown implements OnInit, AfterViewInit, ControlValueAcces
 
     // manually setup a value accessor, to avoid circular deps
     this.ngControl = this.injector.get(NgControl);
-    if (this.ngControl != null) {
+    if (this.ngControl !== null) {
       this.ngControl.valueAccessor = this;
     }
 
@@ -186,7 +186,7 @@ export class PetTypeDropDown implements OnInit, AfterViewInit, ControlValueAcces
   focused = false;
 
   get empty() {
-    return this.selected == null;
+    return this.selected === null;
   }
 
   @HostBinding('class.floating')

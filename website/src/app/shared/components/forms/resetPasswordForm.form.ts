@@ -23,7 +23,7 @@ export class ResetPasswordFormModel {
   styleUrls: ['./resetPasswordForm.form.scss']
 })
 export class ResetPasswordForm implements OnInit, AfterViewInit {
-  @Input() resetPasswordCode: string;
+  @Input() resetPasswordCode: string = null;
   model: ResetPasswordFormModel = new ResetPasswordFormModel('', '');
   submitDisabled = false;
   formGroup: FormGroup;
@@ -38,15 +38,15 @@ export class ResetPasswordForm implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'resetPasswordCode': new FormControl(this.model.resetPasswordCode, [
+      resetPasswordCode: new FormControl(this.model.resetPasswordCode, [
         Validators.required,
         Validators.minLength(64),
         Validators.maxLength(64)], []),
-      'newPassword': new FormControl(this.model.newPassword, [
+      newPassword: new FormControl(this.model.newPassword, [
         Validators.required,
-        Validators.minLength(6),
-        Validators.maxLength(255),
-        Validators.pattern(/^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$/)], [])
+        Validators.minLength(12),
+        Validators.maxLength(128),
+        Validators.pattern(/^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){12,128}$/)], [])
     });
     this.resetPasswordCodeControl = this.formGroup.get('resetPasswordCode') as FormControl;
     this.newPasswordControl = this.formGroup.get('newPassword') as FormControl;

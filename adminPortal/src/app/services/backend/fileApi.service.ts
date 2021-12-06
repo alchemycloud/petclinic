@@ -12,7 +12,7 @@ export class FileApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -21,12 +21,12 @@ export class FileApiService {
 
   }
 
-  findFile(request: FindFileRequest): Observable<{}> {
-    return this.http.get<{}>(
+  findFile(request: FindFileRequest): Observable<Record<string, never>> {
+    return this.http.get<Record<string, never>>(
       environment.backendUrl + '/file/${request.key}/${request.fileName}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('findFile'))
+      catchError(this.handleError<Record<string, never>>('findFile'))
     );
   }
 

@@ -14,7 +14,7 @@ export class PetApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -25,10 +25,10 @@ export class PetApiService {
 
   pets(request: PetsRequest): Observable<PagedDto<PetsResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.drop != null) {
+    if (request.drop !== null) {
       params = params.set('drop', request.drop.toString());
     }
-    if (request.take != null) {
+    if (request.take !== null) {
       params = params.set('take', request.take.toString());
     }
 
@@ -52,7 +52,7 @@ export class PetApiService {
 
   findPetbyType(request: FindPetbyTypeRequest): Observable<Array<FindPetbyTypeResponse>> {
     let params: HttpParams = new HttpParams();
-    if (request.petType != null) {
+    if (request.petType !== null) {
       params = params.set('petType', request.petType.toString());
     }
 
@@ -74,12 +74,12 @@ export class PetApiService {
     );
   }
 
-  deletePet(request: DeletePetRequest): Observable<{}> {
-    return this.http.delete<{}>(
+  deletePet(request: DeletePetRequest): Observable<Record<string, never>> {
+    return this.http.delete<Record<string, never>>(
       environment.backendUrl + '/pet/${request.id}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('deletePet'))
+      catchError(this.handleError<Record<string, never>>('deletePet'))
     );
   }
 

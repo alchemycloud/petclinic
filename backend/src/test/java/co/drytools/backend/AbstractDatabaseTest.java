@@ -115,7 +115,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import org.junit.jupiter.api.AfterEach;
@@ -282,7 +281,7 @@ public abstract class AbstractDatabaseTest extends Fabut {
 
         this.wiser.stop();
         // assert emails sent and expected
-        final List<TestEmailMessage> actualEmails = this.wiser.getMessages().stream().map(this::extractMessage).collect(Collectors.toList());
+        final List<TestEmailMessage> actualEmails = this.wiser.getMessages().stream().map(this::extractMessage).toList();
 
         final Iterator<TestEmailMessage> expectedIterator = this.expectedEmails.iterator();
         while (expectedIterator.hasNext()) {
@@ -335,14 +334,11 @@ public abstract class AbstractDatabaseTest extends Fabut {
     @Override
     public void customAssertEquals(Object expected, Object actual) {
 
-        if (expected instanceof ZonedDateTime && actual instanceof ZonedDateTime) {
-            final ZonedDateTime expectedTime = (ZonedDateTime) expected;
-            final ZonedDateTime actualTime = (ZonedDateTime) actual;
+        if (expected instanceof final ZonedDateTime expectedTime && actual instanceof final ZonedDateTime actualTime) {
             assertTimeWithMargin(expectedTime, actualTime);
-        } else if (expected instanceof AbstractId && actual instanceof AbstractId) {
-            final AbstractId expectedId = (AbstractId) expected;
-            final AbstractId actualId = (AbstractId) actual;
+        } else if (expected instanceof final AbstractId expectedId && actual instanceof final AbstractId actualId) {
             assertEquals(expectedId.getValue(), actualId.getValue());
+
         } else {
             assertEquals(expected, actual);
         }

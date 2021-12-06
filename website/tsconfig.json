@@ -1,25 +1,26 @@
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-        "downlevelIteration": true,
-        "importHelpers": true,
-        "module": "es2020",
-        "outDir": "./dist/out-tsc",
-        "sourceMap": true,
-        "declaration": false,
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "target": "es2015",
-        "typeRoots": [
-            "node_modules/@types"
-        ],
-        "lib": [
-            "es2017",
-            "dom"
-        ]
-    },
-    "angularCompilerOptions": {
-        "fullTemplateTypeCheck": true
-    }
+  "compileOnSave": false,
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "module": "es2020",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "target": "es2015",
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2018",
+      "dom",
+      "dom.Iterable"
+    ]
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true
+  }
 }

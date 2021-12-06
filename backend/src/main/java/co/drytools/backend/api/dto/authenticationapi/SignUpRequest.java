@@ -36,8 +36,8 @@ public class SignUpRequest implements Serializable {
     private String email;
 
     @NotNull
-    @Size(min = 6, max = 255)
-    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z*&@%+/_'!#$^?:.(\\)\\[\\]{}~\\-]{8,}$")
+    @Size(min = 12, max = 128)
+    @Pattern(regexp = "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\\w\\d\\s:])([^\\s]){12,128}$")
     private String password;
 
     private SignUpRequest() {}
