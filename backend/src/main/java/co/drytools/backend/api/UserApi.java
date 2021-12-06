@@ -20,7 +20,6 @@ import co.drytools.backend.repository.UserRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,7 +182,7 @@ public class UserApi {
                             final String responseLastName = model.getLastName();
                             return new UsersResponse(responseId, responseEmail, responseFirstName, responseLastName);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<NonAdminsResponse> nonAdmins() {
@@ -222,7 +221,7 @@ public class UserApi {
                                     responseResetPasswordCode,
                                     responseResetPasswordCodeTimestamp);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<AdminUsersResponse> adminUsers() {
@@ -261,7 +260,7 @@ public class UserApi {
                                     responseResetPasswordCode,
                                     responseResetPasswordCodeTimestamp);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public UserResponseDTO setUserActiveStatusSimple(UserActivationSimpleDTO dto) {

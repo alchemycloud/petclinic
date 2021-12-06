@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -143,7 +142,7 @@ public interface PetApiMockMvc {
                                         final String userLastName = (String) r.get(PetsResponse.USER_LAST_NAME.getPath());
                                         return new PetsResponse(id, name, petType, userLastName);
                                     })
-                            .collect(Collectors.toList());
+                            .toList();
             return new PagedDTO<>(dtos, data.getTotalCount());
         }
 

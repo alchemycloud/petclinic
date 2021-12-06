@@ -9,7 +9,6 @@ import co.drytools.backend.api.dto.authenticationapi.SignInRequest;
 import co.drytools.backend.api.dto.authenticationapi.SignInResponse;
 import co.drytools.backend.api.dto.authenticationapi.SignUpRequest;
 import co.drytools.backend.api.dto.authenticationapi.VerifyEmailRequest;
-import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class AuthenticationApiResource {
     }
 
     @PostMapping(value = "/reset-password", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) throws SQLException {
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         LOG.debug("POST /reset-password {}", request);
 
         authenticationApiCaller.resetPassword(request);

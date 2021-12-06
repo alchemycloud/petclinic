@@ -154,8 +154,8 @@ public class AuthenticationApi {
 
     private SignInResponse signInResponse(User model, Optional<String> oldRefreshToken) {
 
-        final String responseAccessToken = jwtService.createAccessToken(model, model.getRole());
-        final String responseRefreshToken = oldRefreshToken.orElseGet(() -> jwtService.createRefreshToken(model));
+        final String responseAccessToken = jwtService.createAccessToken(Optional.of(model.getEmail()), model.getRole());
+        final String responseRefreshToken = oldRefreshToken.orElseGet(() -> jwtService.createRefreshToken(Optional.of(model.getEmail())));
 
         final UserId responseId = model.getId();
         final String responseFirstName = model.getFirstName();

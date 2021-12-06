@@ -15,11 +15,11 @@
             <dd>{{item.userLastName}}</dd>
         </dl>
     </mat-list-item>
-    <div *ngIf="model.length == 0"
+    <div *ngIf="model.length === 0"
          i18n="@@PETS_LIST_NO_RESULTS">
         No results found
     </div>
-    <mat-paginator *ngIf="model.length != 0"
+    <mat-paginator *ngIf="model.length !== 0"
                    [length]="resultsLength"
                    [pageSize]="take"
                    [pageSizeOptions]="[5, 10, 15, 25, 100]"

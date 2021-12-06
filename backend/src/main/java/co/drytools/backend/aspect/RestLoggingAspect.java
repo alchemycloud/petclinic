@@ -36,7 +36,7 @@ public class RestLoggingAspect extends AbstractProfiledAspect {
         final Object retVal = pjp.proceed();
         final long end = System.currentTimeMillis();
         if (retVal != null) {
-            LOG.debug("Response object: {}", retVal.toString());
+            LOG.debug("Response object: {}", retVal);
         }
         final long totalDuration = end - start;
 

@@ -14,7 +14,7 @@ export class AuthenticationApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -25,21 +25,21 @@ export class AuthenticationApiService {
 
   }
 
-  resetPassword(request: ResetPasswordRequest): Observable<{}> {
-    return this.http.post<{}>(
+  resetPassword(request: ResetPasswordRequest): Observable<Record<string, never>> {
+    return this.http.post<Record<string, never>>(
       environment.backendUrl + '/reset-password', request, {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('resetPassword'))
+      catchError(this.handleError<Record<string, never>>('resetPassword'))
     );
   }
 
-  forgotPassword(request: ForgotPasswordRequest): Observable<{}> {
-    return this.http.post<{}>(
+  forgotPassword(request: ForgotPasswordRequest): Observable<Record<string, never>> {
+    return this.http.post<Record<string, never>>(
       environment.backendUrl + '/forgot-password', request, {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('forgotPassword'))
+      catchError(this.handleError<Record<string, never>>('forgotPassword'))
     );
   }
 
@@ -52,21 +52,21 @@ export class AuthenticationApiService {
     );
   }
 
-  verifyEmail(request: VerifyEmailRequest): Observable<{}> {
-    return this.http.post<{}>(
+  verifyEmail(request: VerifyEmailRequest): Observable<Record<string, never>> {
+    return this.http.post<Record<string, never>>(
       environment.backendUrl + '/verify-email', request, {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('verifyEmail'))
+      catchError(this.handleError<Record<string, never>>('verifyEmail'))
     );
   }
 
-  signUp(request: SignUpRequest): Observable<{}> {
-    return this.http.post<{}>(
+  signUp(request: SignUpRequest): Observable<Record<string, never>> {
+    return this.http.post<Record<string, never>>(
       environment.backendUrl + '/sign-up', request, {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('signUp'))
+      catchError(this.handleError<Record<string, never>>('signUp'))
     );
   }
 
@@ -92,12 +92,12 @@ export class AuthenticationApiService {
   }
 
 
-  changePassword(request: ChangePasswordRequest): Observable<{}> {
-    return this.http.post<{}>(
+  changePassword(request: ChangePasswordRequest): Observable<Record<string, never>> {
+    return this.http.post<Record<string, never>>(
       environment.backendUrl + '/change-password', request, {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<{}>('changePassword'))
+      catchError(this.handleError<Record<string, never>>('changePassword'))
     );
   }
 

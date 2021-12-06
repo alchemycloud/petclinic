@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.persistence.LockModeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +121,7 @@ public class DataVersionRepositoryImpl extends AbstractSimpleRepositoryImpl<Data
         }
         return factory.select(getEntityPathBase())
                 .from(QDataVersion.dataVersion)
-                .where(QDataVersion.dataVersion.id.in(ids.stream().map(DataVersionId::getValue).collect(Collectors.toList())))
+                .where(QDataVersion.dataVersion.id.in(ids.stream().map(DataVersionId::getValue).toList()))
                 .fetch();
     }
 }

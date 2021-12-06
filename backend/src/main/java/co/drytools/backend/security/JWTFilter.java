@@ -39,7 +39,7 @@ public class JWTFilter extends GenericFilterBean {
                     token -> {
                         final Authentication authentication = jwtService.getAuthentication(token);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        AppThreadLocals.initialize(Optional.empty(), Optional.ofNullable((String) authentication.getPrincipal()));
+                        AppThreadLocals.initialize(Optional.empty(), Optional.ofNullable(authentication.getPrincipal()).map(Object::toString));
                     });
             final Optional<TimeZone> clientTimeZone = Optional.ofNullable(httpServletRequest.getHeader("x-timezone")).map(TimeZone::getTimeZone);
             AppThreadLocals.setTimeZone(clientTimeZone);

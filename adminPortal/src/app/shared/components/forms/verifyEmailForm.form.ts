@@ -20,7 +20,7 @@ export class VerifyEmailFormModel {
   styleUrls: ['./verifyEmailForm.form.scss']
 })
 export class VerifyEmailForm implements OnInit, AfterViewInit {
-  @Input() emailVerificationCode: string;
+  @Input() emailVerificationCode: string = null;
   model: VerifyEmailFormModel = new VerifyEmailFormModel('');
   submitDisabled = false;
   formGroup: FormGroup;
@@ -34,7 +34,7 @@ export class VerifyEmailForm implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'emailVerificationCode': new FormControl(this.model.emailVerificationCode, [
+      emailVerificationCode: new FormControl(this.model.emailVerificationCode, [
         Validators.required,
         Validators.minLength(64),
         Validators.maxLength(64)], [])

@@ -43,7 +43,7 @@ export class PetUpdateFormModel {
   styleUrls: ['./petUpdateForm.form.scss']
 })
 export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
-  @Input() id: number;
+  @Input() id: number = null;
   @ViewChild(PetTypeDropDown)
   private readonly petTypeElement: PetTypeDropDown;
   model: PetUpdateFormModel = new PetUpdateFormModel(null, null, '', null, null, false);
@@ -63,18 +63,18 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'ownerId': new FormControl(this.model.ownerId, [
+      ownerId: new FormControl(this.model.ownerId, [
         Validators.required,
         Validators.max(9223372036854775807)], []),
-      'name': new FormControl(this.model.name, [
+      name: new FormControl(this.model.name, [
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(40)], []),
-      'birthdate': new FormControl(this.model.birthdate, [
+      birthdate: new FormControl(this.model.birthdate, [
         Validators.required], []),
-      'petType': new FormControl(this.model.petType, [
+      petType: new FormControl(this.model.petType, [
         Validators.required], []),
-      'vaccinated': new FormControl(this.model.vaccinated, [
+      vaccinated: new FormControl(this.model.vaccinated, [
         Validators.required], [])
     });
     this.ownerIdControl = this.formGroup.get('ownerId') as FormControl;

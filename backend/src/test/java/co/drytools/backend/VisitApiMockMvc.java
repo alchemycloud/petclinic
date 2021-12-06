@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -145,7 +144,7 @@ public interface VisitApiMockMvc {
                                         final Boolean scheduled = (Boolean) r.get(VetVisitsResponse.SCHEDULED.getPath());
                                         return new VetVisitsResponse(vetUserId, petName, visitNumber, scheduled);
                                     })
-                            .collect(Collectors.toList());
+                            .toList();
             return new PagedDTO<>(dtos, data.getTotalCount());
         }
 

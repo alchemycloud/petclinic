@@ -33,7 +33,7 @@ export class PetCreateFormModel {
   styleUrls: ['./petCreateForm.form.scss']
 })
 export class PetCreateForm implements OnInit, AfterViewInit {
-  @Input() model: PetCreateFormModel;
+  @Input() model: PetCreateFormModel = new PetCreateFormModel(null, '', null, null, false);
   @ViewChild(PetTypeDropDown)
   private readonly petTypeElement: PetTypeDropDown;
   submitDisabled = false;
@@ -45,26 +45,24 @@ export class PetCreateForm implements OnInit, AfterViewInit {
   vaccinatedControl: FormControl;
 
   constructor(private readonly petApi: PetApiService, private readonly router: Router, private readonly fb: FormBuilder) {
-    if (this.model == null) {
-      this.model = new PetCreateFormModel(null, '', null, null, false);
-    }
+
   }
 
   ngOnInit(): void {
     this.init();
     this.formGroup = this.fb.group({
-      'ownerId': new FormControl(this.model.ownerId, [
+      ownerId: new FormControl(this.model.ownerId, [
         Validators.required,
         Validators.max(9223372036854775807)], []),
-      'name': new FormControl(this.model.name, [
+      name: new FormControl(this.model.name, [
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(40)], []),
-      'birthdate': new FormControl(this.model.birthdate, [
+      birthdate: new FormControl(this.model.birthdate, [
         Validators.required], []),
-      'petType': new FormControl(this.model.petType, [
+      petType: new FormControl(this.model.petType, [
         Validators.required], []),
-      'vaccinated': new FormControl(this.model.vaccinated, [
+      vaccinated: new FormControl(this.model.vaccinated, [
         Validators.required], [])
     });
     this.ownerIdControl = this.formGroup.get('ownerId') as FormControl;

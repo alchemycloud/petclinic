@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -84,7 +83,7 @@ public class PetRepositoryImpl extends AbstractSimpleRepositoryImpl<Pet, PetId> 
                 .fetch()
                 .stream()
                 .map(t -> new PetPetWithOwnerForOwnerTuple(t.get(qPet), Optional.ofNullable(t.get(qOwner))))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -130,7 +129,7 @@ public class PetRepositoryImpl extends AbstractSimpleRepositoryImpl<Pet, PetId> 
                 .fetch()
                 .stream()
                 .map(t -> new PetPetsTuple(t.get(qPet), t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -150,7 +149,7 @@ public class PetRepositoryImpl extends AbstractSimpleRepositoryImpl<Pet, PetId> 
                 .fetch()
                 .stream()
                 .map(t -> new PetFindPetsTuple(t.get(qPet), t.get(qOwner), t.get(qUser)))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -174,7 +173,7 @@ public class PetRepositoryImpl extends AbstractSimpleRepositoryImpl<Pet, PetId> 
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
-        return factory.select(getEntityPathBase()).from(QPet.pet).where(QPet.pet.id.in(ids.stream().map(PetId::getValue).collect(Collectors.toList()))).fetch();
+        return factory.select(getEntityPathBase()).from(QPet.pet).where(QPet.pet.id.in(ids.stream().map(PetId::getValue).toList())).fetch();
     }
 
     @Override

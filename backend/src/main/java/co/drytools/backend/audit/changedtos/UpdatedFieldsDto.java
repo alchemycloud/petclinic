@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class UpdatedFieldsDto {
 
-    private AuditType auditType;
+    private final AuditType auditType;
 
     Map<PropertyPath, ValueDeltaDto> updatedFields; // Original vs Update
 

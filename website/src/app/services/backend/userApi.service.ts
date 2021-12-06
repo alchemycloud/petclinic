@@ -13,7 +13,7 @@ export class UserApiService {
 
   private header() {
     return new HttpHeaders({
-      'Content-Type': this.applicationJson
+      'content-type': this.applicationJson
     });
   }
 
@@ -24,22 +24,22 @@ export class UserApiService {
 
   getActiveUser(request: UserDTO): Observable<UserResponseDTO> {
     let params: HttpParams = new HttpParams();
-    if (request.id != null) {
+    if (request.id !== null) {
       params = params.set('id', request.id.toString());
     }
-    if (request.email != null) {
+    if (request.email !== null) {
       params = params.set('email', request.email.toString());
     }
-    if (request.firstName != null) {
+    if (request.firstName !== null) {
       params = params.set('firstName', request.firstName.toString());
     }
-    if (request.lastName != null) {
+    if (request.lastName !== null) {
       params = params.set('lastName', request.lastName.toString());
     }
-    if (request.birthdate != null) {
+    if (request.birthdate !== null) {
       params = params.set('birthdate', request.birthdate.toString());
     }
-    if (request.active != null) {
+    if (request.active !== null) {
       params = params.set('active', request.active.toString());
     }
 
@@ -70,18 +70,18 @@ export class UserApiService {
     );
   }
 
-  deleteUser(request: DeleteUserRequest): Observable<{}> {
+  deleteUser(request: DeleteUserRequest): Observable<Record<string, never>> {
     let params: HttpParams = new HttpParams();
-    if (request.id != null) {
+    if (request.id !== null) {
       params = params.set('id', request.id.toString());
     }
 
-    return this.http.delete<{}>(
+    return this.http.delete<Record<string, never>>(
       environment.backendUrl + '/users/delete-user', {
         headers: this.header(),
         params
       }).pipe(
-      catchError(this.handleError<{}>('deleteUser'))
+      catchError(this.handleError<Record<string, never>>('deleteUser'))
     );
   }
 
@@ -105,7 +105,7 @@ export class UserApiService {
 
   readUser(request: ReadUserRequest): Observable<ReadUserResponse> {
     let params: HttpParams = new HttpParams();
-    if (request.id != null) {
+    if (request.id !== null) {
       params = params.set('id', request.id.toString());
     }
 

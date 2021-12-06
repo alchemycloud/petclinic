@@ -32,7 +32,6 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +138,7 @@ public class VisitApi {
                                     final Boolean responseScheduled = tuple.getVisit().getScheduled();
                                     return new VetVisitsResponse(responseVetUserId, responsePetName, responseVisitNumber, responseScheduled);
                                 })
-                        .collect(Collectors.toList());
+                        .toList();
         return new PagedDTO<>(dtos, totalCount);
     }
 
@@ -169,7 +168,7 @@ public class VisitApi {
                                     responseDescription,
                                     responseScheduled);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<MyVisitsResponse> myVisits(MyVisitsRequest dto) {
@@ -244,6 +243,6 @@ public class VisitApi {
                                     responseUserResetPasswordCode,
                                     responseUserResetPasswordCodeTimestamp);
                         })
-                .collect(Collectors.toList());
+                .toList();
     }
 }

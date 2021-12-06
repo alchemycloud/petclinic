@@ -9,7 +9,6 @@ import co.drytools.backend.service.data.DataProcessor;
 import co.drytools.backend.util.TimeUtil;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ public class DataServiceTest extends AbstractDatabaseTest {
 
         final List<DataProcessorLog> logs = dataProcessorLogRepository.findAll();
 
-        final List<DataProcessor> sortedDataProcessors = dataProcessors.stream().sorted().collect(Collectors.toList());
+        final List<DataProcessor> sortedDataProcessors = dataProcessors.stream().sorted().toList();
 
         for (int i = 0; i < sortedDataProcessors.size(); i++) {
             final DataProcessor dataProcessor = sortedDataProcessors.get(i);

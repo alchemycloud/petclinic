@@ -9,7 +9,7 @@ export class TimezoneInterceptor implements HttpInterceptor {
   constructor() {
   }
 
-  intercept(req: HttpRequest<{}>, next: HttpHandler): Observable<HttpEvent<{}>> {
+  intercept(req: HttpRequest<Record<string, never>>, next: HttpHandler): Observable<HttpEvent<Record<string, never>>> {
     const modified = req.clone({
       setHeaders: {
         'x-timezone': Intl.DateTimeFormat().resolvedOptions().timeZone

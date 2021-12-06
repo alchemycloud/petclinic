@@ -30,8 +30,8 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
     const sessionData = this.sessionService.getSessionData();
-    const refreshToken = sessionData == null ? null : this.sessionService.getRefreshToken();
-    const accessToken = sessionData == null ? null : this.sessionService.getAccessToken();
+    const refreshToken = sessionData === null ? null : this.sessionService.getRefreshToken();
+    const accessToken = sessionData === null ? null : this.sessionService.getAccessToken();
 
     if (AuthInterceptor.isWhitelisted(req.url)) {
       return next.handle(req);
@@ -55,13 +55,13 @@ export class AuthInterceptor implements HttpInterceptor {
       return req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,
-          'Access-Control-Allow-Origin': '*'
+          'access-control-allow-origin': '*'
         }
       });
     } else {
       return req.clone({
         setHeaders: {
-          'Access-Control-Allow-Origin': '*'
+          'access-control-allow-origin': '*'
         }
       });
     }
@@ -71,7 +71,7 @@ export class AuthInterceptor implements HttpInterceptor {
     let result = false;
 
     try {
-      result = (token != null && !this.jwtHelper.isTokenExpired(token));
+      result = (token !== null && !this.jwtHelper.isTokenExpired(token));
     } catch (error) {
       result = false;
     }
@@ -90,12 +90,8 @@ export class AuthInterceptor implements HttpInterceptor {
   private freshAccessToken(refreshToken) {
     return this.authenticationApi.refreshToken(new RefreshTokenRequest(refreshToken))
       .pipe(
-        map((response) => {
-          return response.accessToken;
-        }),
-        catchError(() => {
-          return this.backToSignIn();
-        })
+        map((response) => response.accessToken),
+        catchError(() => this.backToSignIn())
       );
   }
 

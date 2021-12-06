@@ -12,7 +12,7 @@ export class VersionInterceptor implements HttpInterceptor {
   constructor(private readonly dialog: MatDialog) {
   }
 
-  intercept(req: HttpRequest<{}>, next: HttpHandler ): Observable<HttpEvent<{}>> {
+  intercept(req: HttpRequest<Record<string, never>>, next: HttpHandler ): Observable<HttpEvent<Record<string, never>>> {
     const modified = req.clone({
       setHeaders: {
         'x-server-version': this.serverVersion
@@ -36,7 +36,7 @@ export class VersionInterceptor implements HttpInterceptor {
             dialogRef.afterClosed().subscribe(result => {
               if (result === 'yes') {
                 // reload app
-                location.reload(true);
+                location.reload();
               }
             });
           }
