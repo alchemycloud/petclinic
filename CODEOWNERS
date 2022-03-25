@@ -1,9 +1,0 @@
-# Server backend
-/backend/ @duskovesin
-
-# Client website
-/website/ @duskovesin
-# Client adminPortal
-/adminPortal/ @duskovesin
-# UI tests
-/uiTest/
