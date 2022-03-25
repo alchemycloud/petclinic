@@ -1,0 +1,3 @@
+tests administration.UserApi.readUser(
+    test readUser
+)

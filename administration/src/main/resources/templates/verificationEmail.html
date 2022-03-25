@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.verification.title}">Account activation</title>
+        <meta http-equiv="Content-Type"
+              content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+        <p th:text="#{email.verification.text(${emailVerificationCode})}">
+            Your account has been created, please click on the URL below to access it or enter verification code: {0}
+        </p>
+        <p>
+            <a th:href="@{|${clientUrl}/verify-email/${emailVerificationCode}|}"
+               th:text="#{email.verification.verify}">Verify</a>
+        </p>
+    </body>
+</html>

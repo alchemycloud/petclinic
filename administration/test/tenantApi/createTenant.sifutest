@@ -1,0 +1,3 @@
+tests administration.TenantApi.createTenant(
+    test createTenant
+)

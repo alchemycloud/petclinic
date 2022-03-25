@@ -1,0 +1,3 @@
+tests backend.VisitApi.deleteVisit(
+    test deleteVisit
+)
