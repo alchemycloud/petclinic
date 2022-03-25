@@ -1,12 +1,22 @@
+# Server administration
+administration/.history/ linguist-generated
+
+administration/src/main/java/co/aleksa/administration/model/ linguist-generated
+administration/src/main/java/co/aleksa/administration/api/dto/ linguist-generated
+administration/src/main/java/co/aleksa/administration/api/*Caller.java linguist-generated
+administration/src/main/java/co/aleksa/administration/rest/ linguist-generated
+administration/src/main/java/co/aleksa/administration/sqs/ linguist-generated
+administration/src/main/java/co/aleksa/administration/spi/ linguist-generated
+
 # Server backend
 backend/.history/ linguist-generated
 
-backend/src/main/java/co/drytools/backend/model/ linguist-generated
-backend/src/main/java/co/drytools/backend/api/dto/ linguist-generated
-backend/src/main/java/co/drytools/backend/api/*Caller.java linguist-generated
-backend/src/main/java/co/drytools/backend/rest/ linguist-generated
-backend/src/main/java/co/drytools/backend/sqs/ linguist-generated
-backend/src/main/java/co/drytools/backend/spi/ linguist-generated
+backend/src/main/java/co/aleksa/backend/model/ linguist-generated
+backend/src/main/java/co/aleksa/backend/api/dto/ linguist-generated
+backend/src/main/java/co/aleksa/backend/api/*Caller.java linguist-generated
+backend/src/main/java/co/aleksa/backend/rest/ linguist-generated
+backend/src/main/java/co/aleksa/backend/sqs/ linguist-generated
+backend/src/main/java/co/aleksa/backend/spi/ linguist-generated
 
 
 

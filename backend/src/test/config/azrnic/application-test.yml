@@ -1,0 +1,36 @@
+spring:
+    config:
+       activate:
+           on-profile: test
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.MysqlDataSource
+        url: jdbc:mysql://localhost:3306/test_backend?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2
+        name:
+        username: root
+        password: 
+    jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        database: MYSQL
+        show_sql: true
+        open_in_view: false
+        hibernate:
+            naming:
+              implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+              physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        properties:
+            hibernate.cache.use_second_level_cache: false
+            hibernate.cache.use_query_cache: false
+            hibernate.generate_statistics: true
+    liquibase:
+        enabled: false # important to spring boot dont create liquibase
+custom:
+    environment: azrnic
+    secretKey: changeme
+    accessTokenValidityInSeconds: 300
+    refreshTokenValidityInSeconds: 3600
+    storageFolder:
+    datasource:
+        cachePrepStmts: false
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true

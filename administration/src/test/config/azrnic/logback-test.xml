@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration scan="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <logger level="DEBUG" name="co.aleksa.administration"/>
+    <logger level="OFF" name="org.hibernate.ejb.HibernatePersistence"/>
+    <logger level="OFF" name="org.apache.catalina.startup.DigesterFactory"/>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

@@ -1,0 +1,3 @@
+tests backend.VisitApi.visitsByVet(
+    test visitsByVet
+)
