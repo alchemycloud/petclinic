@@ -1,0 +1,3 @@
+tests backend.VetApi.vetInfo(
+    test vetInfo
+)

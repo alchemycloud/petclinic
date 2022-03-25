@@ -1,0 +1,14 @@
+administration/target/
+backend/target/
+.settings/
+.classpath
+.project
+.metadata/
+.cache
+.idea/
+*.sifu.debug
+*.iml
+**/target/
+
+#localstack
+localstack/.localstack

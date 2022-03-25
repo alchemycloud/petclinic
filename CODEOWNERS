@@ -1,0 +1,7 @@
+# Server administration
+/administration/ @azrnic
+# Server backend
+/backend/ @azrnic
+
+# UI tests
+/uiTest/

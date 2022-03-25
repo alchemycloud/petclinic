@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="generator" id="1.0.0.1648208809638">
+        <!--CREATE TABLES-->
+        <createTable tableName="User">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="firstName" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastName" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passwordHash" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="emailVerificationCode" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="emailVerificationCodeTimestamp" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column defaultValueBoolean="false" name="emailVerified" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resetPasswordCode" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="resetPasswordCodeTimestamp" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lastHistoryId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="Tenant">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identifier" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="TenantUser">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="userId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tenantId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="accessLevel" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="DataVersion">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="major" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minor" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revision" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lock" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lockTime" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="DataProcessorLog">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="major" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minor" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revision" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="UserHistory">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="correlationId" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="entityId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="referenceId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="changeTime" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previousId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="firstName" type="VARCHAR(40)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lastName" type="VARCHAR(60)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="VARCHAR(128)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="passwordHash" type="VARCHAR(128)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="emailVerificationCode" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="emailVerificationCodeTimestamp" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="emailVerified" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+            <column name="resetPasswordCode" type="VARCHAR(64)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="resetPasswordCodeTimestamp" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <!--ADD FOREIGN KEYS-->
+        <addForeignKeyConstraint baseColumnNames="lastHistoryId" baseTableName="User" constraintName="FK_USE.LH_USE_HIS.I_AD7B6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="UserHistory"/>
+        <addForeignKeyConstraint baseColumnNames="userId" baseTableName="TenantUser" constraintName="FK_TEN_USE.U_USE.I_48DA5" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="tenantId" baseTableName="TenantUser" constraintName="FK_TEN_USE.T_TEN.I_24C3B" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Tenant"/>
+        <addForeignKeyConstraint baseColumnNames="referenceId" baseTableName="UserHistory" constraintName="FK_USE_HIS.R_USE.I_7A17F" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="previousId" baseTableName="UserHistory" constraintName="FK_USE_HIS.P_USE_HIS.I_8E613" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="UserHistory"/>
+        <!--ADD UNIQUE CONSTRAINTS-->
+        <addUniqueConstraint columnNames="email" constraintName="UNQ_USE_E_7E1D1" tableName="User"/>
+        <addUniqueConstraint columnNames="emailVerificationCode" constraintName="UNQ_USE_EVC_4E3FF" tableName="User"/>
+        <addUniqueConstraint columnNames="resetPasswordCode" constraintName="UNQ_USE_RPC_74E56" tableName="User"/>
+        <addUniqueConstraint columnNames="identifier" constraintName="UNQ_TEN_I_3F16D" tableName="Tenant"/>
+        <addUniqueConstraint columnNames="userId, tenantId" constraintName="UNQ_TEN_USE_TI_UI_9FCAA" tableName="TenantUser"/>
+        <addUniqueConstraint columnNames="major, minor, revision, number" constraintName="UNQ_DAT_PRO_LOG_M_M_N_R_01E56" tableName="DataProcessorLog"/>
+        <!--ADD INDICES-->
+        <createIndex indexName="IND_TEN_USE_AL_E91F7" tableName="TenantUser">
+            <column name="accessLevel" type="VARCHAR(255)"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
