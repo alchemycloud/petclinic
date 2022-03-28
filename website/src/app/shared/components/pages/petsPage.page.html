@@ -1,0 +1,12 @@
+<private-header data-qa="header"></private-header>
+<pets-list [drop]="0"
+           [take]="10"
+           data-qa="petsList"></pets-list>
+<button mat-stroked-button
+        color="primary"
+        type="button"
+        (click)="onAddPetClick()"
+        data-qa="addPet">
+    <ng-container i18n="@@PETS_PAGE_ADD_PET">Add pet</ng-container>
+</button>
+<footer data-qa="footer"></footer>

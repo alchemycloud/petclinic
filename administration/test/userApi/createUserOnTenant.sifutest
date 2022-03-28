@@ -1,0 +1,3 @@
+tests administration.UserApi.createUserOnTenant(
+    test createUserOnTenant
+)

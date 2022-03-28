@@ -1,0 +1,3 @@
+tests administration.UserApi.deleteUser(
+    test deleteUser
+)

@@ -1,0 +1,56 @@
+<form (ngSubmit)="onSubmitClick()"
+      name="signInForm"
+      [formGroup]="formGroup"
+      novalidate>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_IN_FORM_EMAIL">Email</mat-label>
+        <input inputAutoFocus
+               matInput
+               formControlName="email"
+               required
+               data-qa="email"
+               type="email"
+               i18n-placeholder="@@SIGN_IN_FORM_EMAIL"
+               placeholder="Email"
+               autocomplete="off" />
+        <mat-error *ngIf="emailControl.hasError('required')"
+                   i18n="@@SIGN_IN_FORM_EMAIL_REQUIRED">Email is required</mat-error>
+        <mat-error *ngIf="emailControl.hasError('minlength')"
+                   i18n="@@SIGN_IN_FORM_EMAIL_MIN">Email min 6 characters</mat-error>
+        <mat-error *ngIf="emailControl.hasError('maxlength')"
+                   i18n="@@SIGN_IN_FORM_EMAIL_MAX">Email max 128 characters</mat-error>
+        <mat-error *ngIf="emailControl.hasError('email')"
+                   i18n="@@SIGN_IN_FORM_EMAIL_EMAIL">Email email</mat-error>
+        <mat-error *ngIf="emailControl.hasError('pattern')"
+                   i18n="@@SIGN_IN_FORM_EMAIL_PATTERN">Email pattern</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline"
+                    class="u-1/1">
+        <mat-label i18n="@@SIGN_IN_FORM_PASSWORD">Password</mat-label>
+        <input matInput
+               formControlName="password"
+               required
+               data-qa="password"
+               type="password"
+               i18n-placeholder="@@SIGN_IN_FORM_PASSWORD"
+               placeholder="Password"
+               autocomplete="off" />
+        <mat-error *ngIf="passwordControl.hasError('required')"
+                   i18n="@@SIGN_IN_FORM_PASSWORD_REQUIRED">Password is required</mat-error>
+        <mat-error *ngIf="passwordControl.hasError('minlength')"
+                   i18n="@@SIGN_IN_FORM_PASSWORD_MIN">Password min 12 characters</mat-error>
+        <mat-error *ngIf="passwordControl.hasError('maxlength')"
+                   i18n="@@SIGN_IN_FORM_PASSWORD_MAX">Password max 128 characters</mat-error>
+    </mat-form-field>
+    <a [routerLink]="['/forgot-password']"
+       i18n="@@SIGN_IN_FORM_FORGOT_PASSWORD"
+       data-qa="forgotPassword">Forgot password</a>
+    <button mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="submitDisabled || !formGroup.valid"
+            data-qa="submit">
+        <ng-container i18n="@@SIGN_IN_FORM_SUBMIT">Submit</ng-container>
+    </button>
+</form>
