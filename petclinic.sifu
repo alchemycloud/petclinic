@@ -1,40 +1,154 @@
 PetClinic project[
     url www.petclinic.com
-    namespace co.drytools
+    namespace co.aleksa
     version 1 . 0 . 0 . 0
     environments(prod)
-    developer(duskovesin)
+    developer(azrnic)
 ](
-
-    backend server[
-        owners(duskovesin)
+    administration server[
+        owners(azrnic)
         template springboot(tests fabut)
         security(
             principal User
             role UserRole
-            defaultRole VET
-            adminRole ADMIN
-            type(email)
+            defaultRole NONE
+            type email
+            signIn[
+                response dto(
+                    User.email
+                    User.role
+                    User.firstName
+                    User.lastName
+                    tenants list dto(
+                        Tenant.identifier
+                        Tenant.name
+                        TenantUser.accessLevel
+                    )
+                )
+            ]
         )
-        path /pet-server
-        default model type mysql
-        file storage fs
+        path /admin
     ](
-
-        adminEmail text[production "admin_production@email.com", test "admin_test@email.com"]
-
-        InvalidPetData dataConstraint
-
-        InvalidUser badRequest
-
-        InvalidPetOwner badRequest
-
         UserRole enum(
-            VET
+            NONE
+            SUPER_ADMIN
             ADMIN
+            VET
             OWNER
         )
 
+        User model[auditable](
+            firstName text[min 1, max 40, searchable]
+            lastName text[min 1, max 60]
+            birthday date
+            active boolean
+            userTenants list TenantUser[oneToMany user]
+        )
+
+        Tenant model(
+            name text
+            identifier text[unique]
+            tenantUsers list TenantUser[oneToMany tenant]
+        )
+
+        TenantAccessLevel enum(
+            ADMIN
+            VET
+            OWNER
+        )
+
+        TenantUser model[unique(user, tenant)](
+            user User
+            tenant Tenant
+            accessLevel TenantAccessLevel
+        )
+
+        TenantApi api[secured SUPER_ADMIN, rest /tenants](
+
+            createTenant create[
+                model Tenant
+                request dto(
+                    Tenant.identifier
+                    Tenant.name
+                )
+                response dto(
+                    Tenant.identifier
+                )
+            ]
+
+            updateTenant update[
+                model Tenant
+                request dto(
+                    Tenant.name
+                )
+            ]
+
+            readTenant read[
+                select from Tenant where Tenant.identifier == identifier
+            ]
+
+            searchTenants read[
+                select from Tenant where optional Tenant.name like name
+            ]
+        )
+
+        UserApi api[secured ADMIN, rest /users](
+
+            user crud[model User]
+
+            nonAdmins read[
+                select from User where User.role != ADMIN
+                rest
+            ]
+
+            admins read[
+                select from User where User.role == ADMIN
+                rest
+            ]
+
+            activateUser update[
+                model User
+                request UserActivationDTO
+                rest /activate
+            ]
+
+            getActiveUser read[
+                select from User where User.active == true and User.id == userId
+                rest /active/:userId
+            ]
+
+            createUserOnTenant create[
+                model TenantUser
+                request dto(
+                    tenant Tenant.identifier
+                    User.email
+                    User.role
+                )
+            ]
+
+            removeUserFromTenant update[
+                request dto(
+                    TenantUser.id
+                )
+            ]
+
+            UserActivationDTO dto(
+                User.id
+                User.active[default true]
+            )
+        )
+    )
+
+    backend server[
+        owners(azrnic)
+        template springboot(tests fabut)
+        security(
+            principal User
+        )
+        path /pet-clinic
+        file storage fs
+        multitenancy
+    ](
         PetType enum(
             DOG
             CAT
@@ -46,19 +160,16 @@ PetClinic project[
         User model[auditable](
             firstName text[min 1, max 40, searchable]
             lastName text[min 1, max 60]
-            birthdate date
+            email text[email]
+            birthday date
             active boolean
-            vets list Vet[oneToMany user]
-            adminUsers select from User 
-                 where User.role == ADMIN
-            findByNameOrLastNameLike select 
-                 where User.firstName like firstname or User.lastName like lastname
-            filterUsers select 
-                 where optional User.email like email and optional User.firstName like first and optional User.lastName like last
-            activeUsersVets select from User 
-                 join Vet with User on User.vets 
-                 where User.role == VET and User.active == true 
-                 order by(User.lastName asc)
+            vets list Vet[oneToMany Vet]
+        )
+
+        Vet model(
+            user User[oneToOne, unique]
+            specialties list VetSpecialty[manyToMany]
+            image file
         )
 
         Owner model(
@@ -67,58 +178,25 @@ PetClinic project[
             city optional text[min 2, max 50]
             telephone optional text[min 5, max 15]
             pets list Pet[oneToMany owner]
-            allOwnersPaged select from Owner 
-                 drop param 
-                 take 20
-            findOwnerwithUser select from Owner 
-                 join User on Owner.user 
-                 where Owner.id == id
-            mandatoryAddress select from Owner 
-                 where mandatory Owner.address == address
-            orderableOwners select 
-                 where Owner.city is not null or Owner.telephone is not null 
-                 orderable by(Owner.city, Owner.telephone)
-            deactivatedOwnerWithPets select from Owner 
-                 join Pet with Owner on Owner.pets 
-                 join User on Owner.user 
-                 where User.active == false and User.role == OWNER
-            findOwnerVets select from Owner 
-                 join User on Owner.user 
-                 where User.role == VET
         )
 
-        Vet model(
-            user User[oneToOne, unique]
-            image file
-        )
-
-        VetSpeciality model(
-            name text[unique, min 3, max 50]
-            description text[min 1, max 1024]
-        )
-
-        VetSpecialities model(
-            vet Vet
-            speciality VetSpeciality
-        )
-
-        Pet model(
-            owner Owner[manyToOne]
+        Pet model[auditable](
+            owner Owner
             name text[min 2, max 40]
-            birthdate date
+            birthday date
             petType PetType
             vaccinated boolean
-            petWithOwnerCount count 
-                 
-                 left join Owner on Pet.owner
-            petWithOwnerForOwner select 
-                 left join Owner on Pet.owner 
-                 where Pet.owner == owner
+        )
+
+        VetSpecialty model(
+            name text[unique, min 3, max 50]
+            description text[min 1, max 1024]
+            vets list Vet[manyToMany]
         )
 
         Visit model(
             vet Vet
-            pet Pet[manyToOne]
+            pet Pet
             visitNumber integer
             timestamp datetime
             petWeight optional decimal
@@ -126,245 +204,184 @@ PetClinic project[
             scheduled boolean[default false]
         )
 
-        UserApi api[secured(ADMIN), rest /users](
-
-            user crud[model User]
-
-            users read[
-                query User.findAll
-                response list dto(
-                    User.id
-                    User.email
-                    User.firstName
-                    User.lastName
-                )
-                secured
-                rest /allUsers
-            ]
-
-            nonAdmins read[
-                select from User 
-                     where User.role != ADMIN
-                secured(ADMIN, VET)
-                rest /nonAdmins
-            ]
-
-            adminUsers read[
-                query User.adminUsers
-                rest /admins
-                secured
-            ]
-
-            UserResponseDTO dto(
-                User.id
-                User.email
-                User.firstName
-                User.lastName
-                User.birthdate
-                User.active
-            )
-
-            UserActivationSimpleDTO dto(
-                User.id
-                User.active[default true]
-            )
-
-            UserDTO dto(
-                User.id
-                User.email
-                User.firstName
-                User.lastName
-                User.birthdate
-                User.active
-            )
-
-            setUserActiveStatusSimple update[
-                rest /active/simple
-                model User
-                request UserActivationSimpleDTO
-                response UserResponseDTO
-            ]
-
-            getActiveUser read[
-                rest /user
-                request UserDTO
-                response UserResponseDTO
-            ]
-        )
-
-        OwnerApi api[secured](
-
-            owner crud[model Owner, secured(VET), rest]
+        OwnerApi api[secured VET, rest /owners](
+            owners crud[model Owner]
 
             allOwners read[
-                query Owner.allOwnersPaged
-                rest /allOwners
-                secured(VET)
+                paged
+                select from Owner
             ]
 
-            ownersForAddress read[
+            forAddress read[
                 paged
-                select from Owner 
-                     join User on Owner.user 
-                     where optional Owner.address like address
-                response list dto(
-                    Owner.id
-                    userEmail User.email
-                    userFirstName User.firstName
-                    userLastName User.lastName
-                )
-                secured(VET)
-                rest /owners
+                select from Owner
+                    join User on Owner.user
+                    where optional Owner.address like address
+                response list EnrichedOwnerDTO
             ]
 
             ownersWithPets read[
-                select from Owner 
-                     join Pet as pet with Owner on Owner.pets 
-                     join User on Owner.user
-                response list dto(
-                    userFirstName User.firstName
-                    userLastName User.lastName
-                )
-                secured(VET)
-                rest /ownersWithPets
+                select from Owner
+                    join Pet as pet with Owner on Owner.pets
+                    join User on Owner.user
+                response list EnrichedOwnerDTO
             ]
 
             ownersPets read[
-                select from Owner 
-                     join Pet with Owner on Owner.pets 
-                     join User on Owner.user 
-                     where Owner.id == ownerId
+                select from Owner
+                    join Pet with Owner on Owner.pets
+                    where Owner.id == ownerId
                 response list dto(
-                    petId Pet.id
-                    Owner.id
-                    petName Pet.name
+                    Pet.id
+                    ownerId Owner.id
+                    Pet.name
                 )
-                secured(VET)
-                rest /owner/:ownerId/pets
+                rest /:ownerId/pets
             ]
 
             myPets read[
-                select from Owner as owner 
-                     join Pet as pet with owner on owner.pets 
-                     join User with owner on owner.user 
-                     where owner.user == principal
-                secured(OWNER)
-                rest
+                select from Owner as owner
+                    join Pet with owner on owner.pets
+                    join User with owner on owner.user
+                    where owner.user == principal
+                secured OWNER
+                response list dto(
+                    Pet.id
+                    Pet.name
+                    Pet.birthday
+                    Pet.petType
+                    Pet.vaccinated
+                )
             ]
 
             ownerVets read[
-                query Owner.findOwnerVets
-                secured(VET)
-                rest
+                select from Owner
+                    join User on Owner.user
+                    where User.role == VET
             ]
+
+            EnrichedOwnerDTO dto(
+                Owner.id
+                User.email
+                User.firstName
+                User.lastName
+            )
         )
 
-        VetApi api[secured(ADMIN), rest](
-
-            vet crud[model Vet, rest]
-
-            VetDTO dto(
-                Vet.id
-                User.firstName
-                User.lastName
-            )
-
-            VetWithSpecialtiesDTO dto(
-                User.firstName
-                User.lastName
-                specialties list VetSpeciality.name
-            )
+        VetApi api[secured ADMIN, rest /vets](
+            vet crud[model Vet]
 
             vetsWithSpecialties read[
-                rest /vets
-                errors(
-                    InvalidPetData
-                )
-                request VetDTO
+                select (vet, list VetSpecialty) from Vet as vet
+                    join User on vet.user
+                    join VetSpecialty with vet on vet.specialties
+                    group by vet
                 response list VetWithSpecialtiesDTO
             ]
 
             vetInfo read[
+                select (vet, list VetSpecialty) from Vet as vet
+                    join User on vet.user
+                    join VetSpecialty with vet on vet.specialties
+                    where vet.id == id
+                    group by vet
+                response list VetWithSpecialtiesDTO
                 rest /vet/info/:id
-                request dto(
-                    Vet.id
-                )
-                response VetWithSpecialtiesDTO
             ]
+
+            VetWithSpecialtiesDTO dto(
+                User.firstName
+                User.lastName
+                specialties list VetSpecialty.name
+            )
         )
 
-        PetApi api[secured](
-
-            pet crud[model Pet, secured(VET), rest]
+        PetApi api[secured VET, rest /pets](
+            pet crud[model Pet]
 
             pets read[
                 paged
-                select from Pet 
-                     join Owner on Pet.owner 
-                     join User on Owner.user
+                select from Pet
+                    join Owner on Pet.owner
+                    join User on Owner.user
                 response list dto(
                     Pet.id
                     Pet.name
                     Pet.petType
-                    userLastName User.lastName
+                    ownerLastName User.lastName
                 )
-                secured(VET)
-                rest /pets
             ]
 
-            findPetbyType read[
-                select from Pet 
-                     where Pet.petType == petType
+            petsByType read[
+                select from Pet
+                    where Pet.petType == petType
                 response list dto(
+                    Pet.id
                     Pet.name
-                    Pet.petType
                 )
-                secured(VET)
-                rest
             ]
         )
 
-        VisitApi api[secured(VET), rest /visit](
+        VisitApi api[secured VET, rest /visits](
+            visit crud[model Visit]
 
-            visit crud[model Visit, rest]
-
-            vetVisits read[
+            visitsByVet read[
                 paged
-                rest
-                select from Visit 
-                     join Vet on Visit.vet 
-                     join Pet on Visit.pet 
-                     where Vet.user == user
-                response list dto(
-                    vetUser Vet.user
-                    petName Pet.name
-                    Visit.visitNumber
-                    Visit.scheduled
-                )
+                select from Visit
+                    join Vet on Visit.vet
+                    join Pet on Visit.pet
+                    where Vet.id == vetId
+                response list VisitDTO
+            ]
+
+            visitsByPet read[
+                paged
+                select from Visit
+                    join Pet as pet on Visit.pet
+                    join Vet on Visit.vet
+                    join Owner as owner on pet.owner
+                    join User on owner.user
+                    where pet.id == petId
+                response list VisitDTO
             ]
 
             scheduledVisits read[
-                rest /scheduled
-                select from Visit 
-                     where Visit.description is not null and Visit.scheduled == true
+                paged
+                select from Visit
+                    join Pet as pet on Visit.pet
+                    join Vet on Visit.vet
+                    join Owner on pet.owner
+                    join User on Owner.user
+                    where Vet.user == principal and Visit.scheduled == true
+                response list VisitDTO
             ]
 
-            myVisits read[
-                secured(OWNER)
-                rest
-                test testName "description"
-                test testName2
-                select from Visit as visit 
-                     join Pet as pet with visit on visit.pet 
-                     join Owner as owner with pet on pet.owner 
-                     join User with owner on owner.user 
-                     where owner.user == userId
+            visitsForOwner read[
+                paged
+                secured OWNER
+                select from Visit
+                    join Pet as pet on Visit.pet
+                    join Vet as vet on Visit.vet
+                    join User on vet.user
+                    join Owner on pet.owner
+                    where Owner.user == principal
+                response list VisitDTO
             ]
+
+            VisitDTO dto(
+                Visit.visitNumber
+                Visit.description
+                Visit.scheduled
+                Pet.name
+                Pet.petType
+                User.firstName
+                User.lastName
+            )
         )
     )
 
     website client[
-        owners(duskovesin)
+        owners(azrnic)
         template angular
         path /petclinic
         connectedTo(
@@ -375,18 +392,18 @@ PetClinic project[
         )
     ](
 
-        publicHeader container(
-            signInButton button {
-                on click {
-                    goto signInPage
-                }
-            }
-            signUpButton button {
-                on click {
-                    goto signUpPage
-                }
-            }
-        )
+#        publicHeader container(
+#            signInButton button {
+#                on click {
+#                    goto signInPage
+#                }
+#            }
+#            signUpButton button {
+#                on click {
+#                    goto signUpPage
+#                }
+#            }
+#        )
 
         privateHeader container(
             userInfo label
@@ -401,13 +418,13 @@ PetClinic project[
         )
 
         welcomePage page(
-            header publicHeader
+#            header publicHeader
             welcome label
             footer footer
         )
 
         aboutPage page[path /about](
-            header publicHeader
+#            header publicHeader
             footer footer
         )
 
@@ -454,7 +471,7 @@ PetClinic project[
 
         petUpdatePage page[path /private/pet/:id, params(id integer), secured(VET)](
             header privateHeader
-            formdasdas petUpdateForm[input(params.id)]
+            form petUpdateForm[input(params.id)]
             footer footer
         )
     )
@@ -463,8 +480,8 @@ PetClinic project[
         template angular
         path /admin
         connectedTo(
-            backend
+            administration
         )
-        owners(duskovesin)
+        owners(azrnic)
     ]
 )
