@@ -1,4 +1,7 @@
-import {AuthenticationApiService, ForgotPasswordRequest} from '../../../services/backend/authenticationApi.service';
+import {
+  AuthenticationApiService,
+  ForgotPasswordRequest
+} from '../../../services/administration/authenticationApi.service';
 import {AfterViewInit, Component, Inject, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';

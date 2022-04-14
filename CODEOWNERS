@@ -1,9 +1,11 @@
+# Server administration
+/administration/ @azrnic
 # Server backend
-/backend/ @duskovesin
+/backend/ @azrnic
 
 # Client website
-/website/ @duskovesin
+/website/ @azrnic
 # Client adminPortal
-/adminPortal/ @duskovesin
+/adminPortal/ @azrnic
 # UI tests
 /uiTest/

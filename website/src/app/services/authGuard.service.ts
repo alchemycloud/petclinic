@@ -10,11 +10,12 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly sessionService: SessionService, private readonly router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean > | Promise<boolean> | boolean {
-    const sessionData = this.sessionService.getSessionData();
+    this.sessionService.setActiveTenant(route.params("tenant"))
+const sessionData = this.sessionService.getSessionData();
     if ( sessionData ) {
       return true;
     } else {
-      this.router.navigate(['/sign-in'], { queryParams: { prevRout: state.url } });
+      this.router.navigate([''], { queryParams: { prevRout: state.url } });
       return false;
     }
   }

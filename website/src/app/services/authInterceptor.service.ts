@@ -2,7 +2,7 @@ import {Observable, throwError as observableThrowError} from 'rxjs';
 import {Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {SessionService} from './session.service';
-import {AuthenticationApiService, RefreshTokenRequest} from './backend/authenticationApi.service';
+import {AuthenticationApiService, RefreshTokenRequest} from './administration/authenticationApi.service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Router} from '@angular/router';
 import {catchError, flatMap, map} from 'rxjs/operators';
@@ -13,9 +13,7 @@ import {environment} from '../../environments/environment';
 export class AuthInterceptor implements HttpInterceptor {
 
   private static urlWhitelist = [
-    environment.backendUrl + '/refresh-token',
-    environment.backendUrl + '/sign-in',
-    environment.backendUrl + '/forgot-password'
+    environment.administrationUrl + '/refresh-token'
   ];
 
   constructor(

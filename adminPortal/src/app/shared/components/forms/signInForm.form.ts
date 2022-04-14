@@ -1,9 +1,11 @@
 import {
   AuthenticationApiService,
   SignInRequest,
-  SignInResponse
-} from '../../../services/backend/authenticationApi.service';
-import {UserRole} from '../../../services/backend/enums';
+  SignInResponse,
+  SignInResponseTenants,
+  SignInResponseTokens
+} from '../../../services/administration/authenticationApi.service';
+import {UserRole} from '../../../services/administration/enums';
 import {SessionData, SessionService} from '../../../services/session.service';
 import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
@@ -78,8 +80,8 @@ export class SignInForm implements OnInit, AfterViewInit {
     this.authenticationApi.signIn(new SignInRequest(this.model.email,
       this.model.password))
       .subscribe((response: SignInResponse) => {
-      this.sessionService.save(new SessionData(response.accessToken, response.refreshToken, response.id, response.firstName, response.lastName,
-          response.birthdate, response.active, response.role, response.email));
+      this.sessionService.save(new SessionData(response.accessToken, response.refreshToken, response.tokens, response.email, response.role,
+          response.firstName, response.lastName, response.tenants));
         this.submitDisabled = false;
 
       }, (_) => {

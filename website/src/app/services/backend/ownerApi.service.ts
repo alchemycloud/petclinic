@@ -23,16 +23,91 @@ export class OwnerApiService {
 
   }
 
-  ownersWithPets(): Observable<Array<OwnersWithPetsResponse>> {
-    return this.http.get<Array<OwnersWithPetsResponse>>(
-      environment.backendUrl + '/ownersWithPets', {
+  ownersWithPets(): Observable<Array<EnrichedOwnerDTO>> {
+    return this.http.get<Array<EnrichedOwnerDTO>>(
+      environment.backendUrl + '/owners/owners-with-pets', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<Array<OwnersWithPetsResponse>>('ownersWithPets'))
+      catchError(this.handleError<Array<EnrichedOwnerDTO>>('ownersWithPets'))
     );
   }
 
-  ownersForAddress(request: OwnersForAddressRequest): Observable<PagedDto<OwnersForAddressResponse>> {
+  readOwners(request: ReadOwnersRequest): Observable<ReadOwnersResponse> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
+    return this.http.get<ReadOwnersResponse>(
+      environment.backendUrl + '/owners/read-owners', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<ReadOwnersResponse>('readOwners'))
+    );
+  }
+
+  updateOwners(request: UpdateOwnersRequest): Observable<UpdateOwnersResponse> {
+    return this.http.put<UpdateOwnersResponse>(
+      environment.backendUrl + '/owners/update-owners', request, {
+        headers: this.header()
+      }).pipe(
+      catchError(this.handleError<UpdateOwnersResponse>('updateOwners'))
+    );
+  }
+
+  createOwners(request: CreateOwnersRequest): Observable<CreateOwnersResponse> {
+    return this.http.post<CreateOwnersResponse>(
+      environment.backendUrl + '/owners/create-owners', request, {
+        headers: this.header()
+      }).pipe(
+      catchError(this.handleError<CreateOwnersResponse>('createOwners'))
+    );
+  }
+
+  ownersPets(request: OwnersPetsRequest): Observable<Array<OwnersPetsResponse>> {
+    return this.http.get<Array<OwnersPetsResponse>>(
+      environment.backendUrl + '/owners/${request.ownerId}/pets', {
+        headers: this.header()
+      }).pipe(
+      catchError(this.handleError<Array<OwnersPetsResponse>>('ownersPets'))
+    );
+  }
+
+  deleteOwners(request: DeleteOwnersRequest): Observable<Record<string, never>> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
+    return this.http.delete<Record<string, never>>(
+      environment.backendUrl + '/owners/delete-owners', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<Record<string, never>>('deleteOwners'))
+    );
+  }
+
+  allOwners(request: AllOwnersRequest): Observable<PagedDto<AllOwnersResponse>> {
+    let params: HttpParams = new HttpParams();
+    if (request.drop !== null) {
+      params = params.set('drop', request.drop.toString());
+    }
+    if (request.take !== null) {
+      params = params.set('take', request.take.toString());
+    }
+
+    return this.http.get<PagedDto<AllOwnersResponse>>(
+      environment.backendUrl + '/owners/all-owners', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<PagedDto<AllOwnersResponse>>('allOwners'))
+    );
+  }
+
+  forAddress(request: ForAddressRequest): Observable<PagedDto<EnrichedOwnerDTO>> {
     let params: HttpParams = new HttpParams();
     if (request.address !== null) {
       params = params.set('address', request.address.toString());
@@ -44,78 +119,18 @@ export class OwnerApiService {
       params = params.set('take', request.take.toString());
     }
 
-    return this.http.get<PagedDto<OwnersForAddressResponse>>(
-      environment.backendUrl + '/owners', {
+    return this.http.get<PagedDto<EnrichedOwnerDTO>>(
+      environment.backendUrl + '/owners/for-address', {
         headers: this.header(),
         params
       }).pipe(
-      catchError(this.handleError<PagedDto<OwnersForAddressResponse>>('ownersForAddress'))
-    );
-  }
-
-  createOwner(request: CreateOwnerRequest): Observable<CreateOwnerResponse> {
-    return this.http.post<CreateOwnerResponse>(
-      environment.backendUrl + '/owner', request, {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<CreateOwnerResponse>('createOwner'))
-    );
-  }
-
-  ownersPets(request: OwnersPetsRequest): Observable<Array<OwnersPetsResponse>> {
-    return this.http.get<Array<OwnersPetsResponse>>(
-      environment.backendUrl + '/owner/${request.ownerId}/pets', {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<Array<OwnersPetsResponse>>('ownersPets'))
-    );
-  }
-
-  deleteOwner(request: DeleteOwnerRequest): Observable<Record<string, never>> {
-    return this.http.delete<Record<string, never>>(
-      environment.backendUrl + '/owner/${request.id}', {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<Record<string, never>>('deleteOwner'))
-    );
-  }
-
-  updateOwner(request: UpdateOwnerRequest): Observable<UpdateOwnerResponse> {
-    return this.http.put<UpdateOwnerResponse>(
-      environment.backendUrl + '/owner/${request.id}', request, {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<UpdateOwnerResponse>('updateOwner'))
-    );
-  }
-
-  allOwners(request: AllOwnersRequest): Observable<Array<AllOwnersResponse>> {
-    let params: HttpParams = new HttpParams();
-    if (request.param !== null) {
-      params = params.set('param', request.param.toString());
-    }
-
-    return this.http.get<Array<AllOwnersResponse>>(
-      environment.backendUrl + '/allOwners', {
-        headers: this.header(),
-        params
-      }).pipe(
-      catchError(this.handleError<Array<AllOwnersResponse>>('allOwners'))
-    );
-  }
-
-  readOwner(request: ReadOwnerRequest): Observable<ReadOwnerResponse> {
-    return this.http.get<ReadOwnerResponse>(
-      environment.backendUrl + '/owner/${request.id}', {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<ReadOwnerResponse>('readOwner'))
+      catchError(this.handleError<PagedDto<EnrichedOwnerDTO>>('forAddress'))
     );
   }
 
   myPets(): Observable<Array<MyPetsResponse>> {
     return this.http.get<Array<MyPetsResponse>>(
-      environment.backendUrl + '/my-pets', {
+      environment.backendUrl + '/owners/my-pets', {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<Array<MyPetsResponse>>('myPets'))
@@ -124,7 +139,7 @@ export class OwnerApiService {
 
   ownerVets(): Observable<Array<OwnerVetsResponse>> {
     return this.http.get<Array<OwnerVetsResponse>>(
-      environment.backendUrl + '/owner-vets', {
+      environment.backendUrl + '/owners/owner-vets', {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<Array<OwnerVetsResponse>>('ownerVets'))
@@ -148,25 +163,7 @@ export class OwnerApiService {
 
 }
 
-export class CreateOwnerRequest {
-  userId: number;
-  address: string;
-  city: string;
-  telephone: string;
-
-  constructor(userId: number,
-              address: string,
-              city: string,
-              telephone: string) {
-    this.userId = userId;
-    this.address = address;
-    this.city = city;
-    this.telephone = telephone;
-  }
-
-}
-
-export class CreateOwnerResponse {
+export class CreateOwnersResponse {
   id: number;
   userId: number;
   address: string;
@@ -183,36 +180,6 @@ export class CreateOwnerResponse {
     this.address = address;
     this.city = city;
     this.telephone = telephone;
-  }
-
-}
-
-export class UpdateOwnerRequest {
-  id: number;
-  userId: number;
-  address: string;
-  city: string;
-  telephone: string;
-
-  constructor(id: number,
-              userId: number,
-              address: string,
-              city: string,
-              telephone: string) {
-    this.id = id;
-    this.userId = userId;
-    this.address = address;
-    this.city = city;
-    this.telephone = telephone;
-  }
-
-}
-
-export class DeleteOwnerRequest {
-  id: number;
-
-  constructor(id: number) {
-    this.id = id;
   }
 
 }
@@ -238,11 +205,17 @@ export class AllOwnersResponse {
 
 }
 
-export class ReadOwnerRequest {
-  id: number;
+export class ForAddressRequest {
+  address: string;
+  drop: number;
+  take: number;
 
-  constructor(id: number) {
-    this.id = id;
+  constructor(address: string,
+              drop: number,
+              take: number) {
+    this.address = address;
+    this.drop = drop;
+    this.take = take;
   }
 
 }
@@ -256,25 +229,7 @@ export class OwnersPetsRequest {
 
 }
 
-export class OwnersForAddressResponse {
-  id: number;
-  userEmail: string;
-  userFirstName: string;
-  userLastName: string;
-
-  constructor(id: number,
-              userEmail: string,
-              userFirstName: string,
-              userLastName: string) {
-    this.id = id;
-    this.userEmail = userEmail;
-    this.userFirstName = userFirstName;
-    this.userLastName = userLastName;
-  }
-
-}
-
-export class UpdateOwnerResponse {
+export class ReadOwnersResponse {
   id: number;
   userId: number;
   address: string;
@@ -291,126 +246,81 @@ export class UpdateOwnerResponse {
     this.address = address;
     this.city = city;
     this.telephone = telephone;
+  }
+
+}
+
+export class EnrichedOwnerDTO {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+
+  constructor(id: number,
+              email: string,
+              firstName: string,
+              lastName: string) {
+    this.id = id;
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
 }
 
 export class OwnersPetsResponse {
-  petId: number;
   id: number;
-  petName: string;
+  ownerId: number;
+  name: string;
 
-  constructor(petId: number,
-              id: number,
-              petName: string) {
-    this.petId = petId;
+  constructor(id: number,
+              ownerId: number,
+              name: string) {
     this.id = id;
-    this.petName = petName;
+    this.ownerId = ownerId;
+    this.name = name;
   }
 
 }
 
-export class ReadOwnerResponse {
+export class DeleteOwnersRequest {
   id: number;
-  userId: number;
-  address: string;
-  city: string;
-  telephone: string;
 
-  constructor(id: number,
-              userId: number,
-              address: string,
-              city: string,
-              telephone: string) {
+  constructor(id: number) {
     this.id = id;
-    this.userId = userId;
-    this.address = address;
-    this.city = city;
-    this.telephone = telephone;
   }
 
 }
 
 export class MyPetsResponse {
   id: number;
-  userId: number;
-  address: string;
-  city: string;
-  telephone: string;
-  petId: number;
-  petOwnerId: number;
-  petName: string;
-  petBirthdate: Date;
-  petPetType: PetType;
-  petVaccinated: boolean;
-  userFirstName: string;
-  userLastName: string;
-  userBirthdate: Date;
-  userActive: boolean;
-  userRole: UserRole;
-  userEmail: string;
-  userPasswordHash: string;
-  userEmailVerificationCode: string;
-  userEmailVerificationCodeTimestamp: Date;
-  userEmailVerified: boolean;
-  userResetPasswordCode: string;
-  userResetPasswordCodeTimestamp: Date;
+  name: string;
+  birthday: Date;
+  petType: PetType;
+  vaccinated: boolean;
 
   constructor(id: number,
-              userId: number,
-              address: string,
-              city: string,
-              telephone: string,
-              petId: number,
-              petOwnerId: number,
-              petName: string,
-              petBirthdate: Date,
-              petPetType: PetType,
-              petVaccinated: boolean,
-              userFirstName: string,
-              userLastName: string,
-              userBirthdate: Date,
-              userActive: boolean,
-              userRole: UserRole,
-              userEmail: string,
-              userPasswordHash: string,
-              userEmailVerificationCode: string,
-              userEmailVerificationCodeTimestamp: Date,
-              userEmailVerified: boolean,
-              userResetPasswordCode: string,
-              userResetPasswordCodeTimestamp: Date) {
+              name: string,
+              birthday: Date,
+              petType: PetType,
+              vaccinated: boolean) {
     this.id = id;
-    this.userId = userId;
-    this.address = address;
-    this.city = city;
-    this.telephone = telephone;
-    this.petId = petId;
-    this.petOwnerId = petOwnerId;
-    this.petName = petName;
-    this.petBirthdate = petBirthdate;
-    this.petPetType = petPetType;
-    this.petVaccinated = petVaccinated;
-    this.userFirstName = userFirstName;
-    this.userLastName = userLastName;
-    this.userBirthdate = userBirthdate;
-    this.userActive = userActive;
-    this.userRole = userRole;
-    this.userEmail = userEmail;
-    this.userPasswordHash = userPasswordHash;
-    this.userEmailVerificationCode = userEmailVerificationCode;
-    this.userEmailVerificationCodeTimestamp = userEmailVerificationCodeTimestamp;
-    this.userEmailVerified = userEmailVerified;
-    this.userResetPasswordCode = userResetPasswordCode;
-    this.userResetPasswordCodeTimestamp = userResetPasswordCodeTimestamp;
+    this.name = name;
+    this.birthday = birthday;
+    this.petType = petType;
+    this.vaccinated = vaccinated;
   }
 
 }
 
 export class AllOwnersRequest {
-  param: number;
+  drop: number;
+  take: number;
 
-  constructor(param: number) {
-    this.param = param;
+  constructor(drop: number,
+              take: number) {
+    this.drop = drop;
+    this.take = take;
   }
 
 }
@@ -423,16 +333,10 @@ export class OwnerVetsResponse {
   telephone: string;
   userFirstName: string;
   userLastName: string;
-  userBirthdate: Date;
+  userEmail: string;
+  userBirthday: Date;
   userActive: boolean;
   userRole: UserRole;
-  userEmail: string;
-  userPasswordHash: string;
-  userEmailVerificationCode: string;
-  userEmailVerificationCodeTimestamp: Date;
-  userEmailVerified: boolean;
-  userResetPasswordCode: string;
-  userResetPasswordCodeTimestamp: Date;
 
   constructor(id: number,
               userId: number,
@@ -441,16 +345,10 @@ export class OwnerVetsResponse {
               telephone: string,
               userFirstName: string,
               userLastName: string,
-              userBirthdate: Date,
-              userActive: boolean,
-              userRole: UserRole,
               userEmail: string,
-              userPasswordHash: string,
-              userEmailVerificationCode: string,
-              userEmailVerificationCodeTimestamp: Date,
-              userEmailVerified: boolean,
-              userResetPasswordCode: string,
-              userResetPasswordCodeTimestamp: Date) {
+              userBirthday: Date,
+              userActive: boolean,
+              userRole: UserRole) {
     this.id = id;
     this.userId = userId;
     this.address = address;
@@ -458,43 +356,79 @@ export class OwnerVetsResponse {
     this.telephone = telephone;
     this.userFirstName = userFirstName;
     this.userLastName = userLastName;
-    this.userBirthdate = userBirthdate;
+    this.userEmail = userEmail;
+    this.userBirthday = userBirthday;
     this.userActive = userActive;
     this.userRole = userRole;
-    this.userEmail = userEmail;
-    this.userPasswordHash = userPasswordHash;
-    this.userEmailVerificationCode = userEmailVerificationCode;
-    this.userEmailVerificationCodeTimestamp = userEmailVerificationCodeTimestamp;
-    this.userEmailVerified = userEmailVerified;
-    this.userResetPasswordCode = userResetPasswordCode;
-    this.userResetPasswordCodeTimestamp = userResetPasswordCodeTimestamp;
   }
 
 }
 
-export class OwnersWithPetsResponse {
-  userFirstName: string;
-  userLastName: string;
-
-  constructor(userFirstName: string,
-              userLastName: string) {
-    this.userFirstName = userFirstName;
-    this.userLastName = userLastName;
-  }
-
-}
-
-export class OwnersForAddressRequest {
+export class UpdateOwnersResponse {
+  id: number;
+  userId: number;
   address: string;
-  drop: number;
-  take: number;
+  city: string;
+  telephone: string;
 
-  constructor(address: string,
-              drop: number,
-              take: number) {
+  constructor(id: number,
+              userId: number,
+              address: string,
+              city: string,
+              telephone: string) {
+    this.id = id;
+    this.userId = userId;
     this.address = address;
-    this.drop = drop;
-    this.take = take;
+    this.city = city;
+    this.telephone = telephone;
+  }
+
+}
+
+export class ReadOwnersRequest {
+  id: number;
+
+  constructor(id: number) {
+    this.id = id;
+  }
+
+}
+
+export class UpdateOwnersRequest {
+  id: number;
+  userId: number;
+  address: string;
+  city: string;
+  telephone: string;
+
+  constructor(id: number,
+              userId: number,
+              address: string,
+              city: string,
+              telephone: string) {
+    this.id = id;
+    this.userId = userId;
+    this.address = address;
+    this.city = city;
+    this.telephone = telephone;
+  }
+
+}
+
+export class CreateOwnersRequest {
+  userId: number;
+  address: string;
+  city: string;
+  telephone: string;
+
+  constructor(userId: number,
+              address: string,
+              city: string,
+              telephone: string) {
+    this.userId = userId;
+    this.address = address;
+    this.city = city;
+    this.telephone = telephone;
   }
 
 }

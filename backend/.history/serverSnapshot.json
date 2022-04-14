@@ -19,8 +19,13 @@
       "minSize": "1",
       "maxSize": "60"
     }, {
+      "dslType": "text",
+      "name": "email",
+      "wrappers": [],
+      "maxSize": "255"
+    }, {
       "dslType": "date",
-      "name": "birthdate",
+      "name": "birthday",
       "wrappers": []
     }, {
       "dslType": "boolean",
@@ -30,43 +35,6 @@
       "dslType": "enum",
       "name": "role",
       "wrappers": []
-    }, {
-      "dslType": "text",
-      "name": "email",
-      "wrappers": [],
-      "minSize": "6",
-      "maxSize": "128"
-    }, {
-      "dslType": "text",
-      "name": "passwordHash",
-      "wrappers": [],
-      "minSize": "6",
-      "maxSize": "128"
-    }, {
-      "dslType": "text",
-      "name": "emailVerificationCode",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "64",
-      "maxSize": "64"
-    }, {
-      "dslType": "datetime",
-      "name": "emailVerificationCodeTimestamp",
-      "wrappers": ["OPTIONAL"]
-    }, {
-      "dslType": "boolean",
-      "name": "emailVerified",
-      "wrappers": [],
-      "default": "false"
-    }, {
-      "dslType": "text",
-      "name": "resetPasswordCode",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "64",
-      "maxSize": "64"
-    }, {
-      "dslType": "datetime",
-      "name": "resetPasswordCodeTimestamp",
-      "wrappers": ["OPTIONAL"]
     }, {
       "dslType": "long",
       "name": "lastHistoryId",
@@ -88,33 +56,64 @@
       "wrappers": []
     }],
     "primaryKeySqlName": "PK_USE_I_CF6928",
+    "uniques": [],
+    "indices": []
+  }, {
+    "name": "Vet",
+    "properties": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "userId",
+      "wrappers": []
+    }, {
+      "dslType": "text",
+      "name": "imagePath",
+      "wrappers": [],
+      "maxSize": "255"
+    }, {
+      "dslType": "long",
+      "name": "userId",
+      "wrappers": []
+    }],
+    "references": [{
+      "name": "user",
+      "model": "User",
+      "properties": [{
+        "dslType": "long",
+        "name": "userId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET.U_USE.I_BFCEB1"
+    }, {
+      "name": "user",
+      "model": "User",
+      "properties": [{
+        "dslType": "long",
+        "name": "userId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET.U_USE.I_BFCEB1"
+    }],
+    "primaryKeys": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }],
+    "primaryKeySqlName": "PK_VET_I_094264",
     "uniques": [{
       "properties": [{
-        "dslType": "text",
-        "name": "email",
-        "wrappers": [],
-        "minSize": "6",
-        "maxSize": "128"
+        "dslType": "long",
+        "name": "userId",
+        "wrappers": []
+      }, {
+        "dslType": "long",
+        "name": "userId",
+        "wrappers": []
       }],
-      "sqlName": "UNQ_USE_E_7E1D17"
-    }, {
-      "properties": [{
-        "dslType": "text",
-        "name": "emailVerificationCode",
-        "wrappers": ["OPTIONAL"],
-        "minSize": "64",
-        "maxSize": "64"
-      }],
-      "sqlName": "UNQ_USE_EVC_4E3FFA"
-    }, {
-      "properties": [{
-        "dslType": "text",
-        "name": "resetPasswordCode",
-        "wrappers": ["OPTIONAL"],
-        "minSize": "64",
-        "maxSize": "64"
-      }],
-      "sqlName": "UNQ_USE_RPC_74E561"
+      "sqlName": "UNQ_VET_UI_UI_E69492"
     }],
     "indices": []
   }, {
@@ -172,48 +171,74 @@
     }],
     "indices": []
   }, {
-    "name": "Vet",
+    "name": "Pet",
     "properties": [{
       "dslType": "long",
       "name": "id",
       "wrappers": []
     }, {
       "dslType": "long",
-      "name": "userId",
+      "name": "ownerId",
       "wrappers": []
     }, {
       "dslType": "text",
-      "name": "imagePath",
+      "name": "name",
       "wrappers": [],
-      "maxSize": "255"
+      "minSize": "2",
+      "maxSize": "40"
+    }, {
+      "dslType": "date",
+      "name": "birthday",
+      "wrappers": []
+    }, {
+      "dslType": "enum",
+      "name": "petType",
+      "wrappers": []
+    }, {
+      "dslType": "boolean",
+      "name": "vaccinated",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "lastHistoryId",
+      "wrappers": ["OPTIONAL"]
     }],
     "references": [{
-      "name": "user",
-      "model": "User",
+      "name": "owner",
+      "model": "Owner",
       "properties": [{
         "dslType": "long",
-        "name": "userId",
+        "name": "ownerId",
         "wrappers": []
       }],
-      "sqlName": "FK_VET.U_USE.I_BFCEB1"
+      "sqlName": "FK_PET.O_OWN.I_4FB44C"
+    }, {
+      "name": "lastHistory",
+      "model": "PetHistory",
+      "properties": [{
+        "dslType": "long",
+        "name": "lastHistoryId",
+        "wrappers": ["OPTIONAL"]
+      }],
+      "sqlName": "FK_PET.LH_PET_HIS.I_2BB9FB"
     }],
     "primaryKeys": [{
       "dslType": "long",
       "name": "id",
       "wrappers": []
     }],
-    "primaryKeySqlName": "PK_VET_I_094264",
-    "uniques": [{
+    "primaryKeySqlName": "PK_PET_I_3D2479",
+    "uniques": [],
+    "indices": [{
       "properties": [{
-        "dslType": "long",
-        "name": "userId",
+        "dslType": "enum",
+        "name": "petType",
         "wrappers": []
       }],
-      "sqlName": "UNQ_VET_UI_D47898"
-    }],
-    "indices": []
+      "sqlName": "IND_PET_PT_9A7DF1"
+    }]
   }, {
-    "name": "VetSpeciality",
+    "name": "VetSpecialty",
     "properties": [{
       "dslType": "long",
       "name": "id",
@@ -237,7 +262,7 @@
       "name": "id",
       "wrappers": []
     }],
-    "primaryKeySqlName": "PK_VET_SPE_I_0B5048",
+    "primaryKeySqlName": "PK_VET_SPE_I_D559CB",
     "uniques": [{
       "properties": [{
         "dslType": "text",
@@ -246,105 +271,9 @@
         "minSize": "3",
         "maxSize": "50"
       }],
-      "sqlName": "UNQ_VET_SPE_N_EE5275"
+      "sqlName": "UNQ_VET_SPE_N_073495"
     }],
     "indices": []
-  }, {
-    "name": "VetSpecialities",
-    "properties": [{
-      "dslType": "long",
-      "name": "id",
-      "wrappers": []
-    }, {
-      "dslType": "long",
-      "name": "vetId",
-      "wrappers": []
-    }, {
-      "dslType": "long",
-      "name": "specialityId",
-      "wrappers": []
-    }],
-    "references": [{
-      "name": "vet",
-      "model": "Vet",
-      "properties": [{
-        "dslType": "long",
-        "name": "vetId",
-        "wrappers": []
-      }],
-      "sqlName": "FK_VET_SPE.V_VET.I_657B72"
-    }, {
-      "name": "speciality",
-      "model": "VetSpeciality",
-      "properties": [{
-        "dslType": "long",
-        "name": "specialityId",
-        "wrappers": []
-      }],
-      "sqlName": "FK_VET_SPE.S_VET_SPE.I_F76959"
-    }],
-    "primaryKeys": [{
-      "dslType": "long",
-      "name": "id",
-      "wrappers": []
-    }],
-    "primaryKeySqlName": "PK_VET_SPE_I_F8F92A",
-    "uniques": [],
-    "indices": []
-  }, {
-    "name": "Pet",
-    "properties": [{
-      "dslType": "long",
-      "name": "id",
-      "wrappers": []
-    }, {
-      "dslType": "long",
-      "name": "ownerId",
-      "wrappers": []
-    }, {
-      "dslType": "text",
-      "name": "name",
-      "wrappers": [],
-      "minSize": "2",
-      "maxSize": "40"
-    }, {
-      "dslType": "date",
-      "name": "birthdate",
-      "wrappers": []
-    }, {
-      "dslType": "enum",
-      "name": "petType",
-      "wrappers": []
-    }, {
-      "dslType": "boolean",
-      "name": "vaccinated",
-      "wrappers": []
-    }],
-    "references": [{
-      "name": "owner",
-      "model": "Owner",
-      "properties": [{
-        "dslType": "long",
-        "name": "ownerId",
-        "wrappers": []
-      }],
-      "sqlName": "FK_PET.O_OWN.I_4FB44C"
-    }],
-    "primaryKeys": [{
-      "dslType": "long",
-      "name": "id",
-      "wrappers": []
-    }],
-    "primaryKeySqlName": "PK_PET_I_3D2479",
-    "uniques": [],
-    "indices": [{
-      "properties": [{
-        "dslType": "enum",
-        "name": "petType",
-        "wrappers": []
-      }],
-      "sqlName": "IND_PET_PT_9A7DF1"
-    }]
   }, {
     "name": "Visit",
     "properties": [{
@@ -410,6 +339,35 @@
     }],
     "primaryKeySqlName": "PK_VIS_I_3AAA64",
     "uniques": [],
+    "indices": []
+  }, {
+    "name": "Tenant",
+    "properties": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }, {
+      "dslType": "text",
+      "name": "identifier",
+      "wrappers": [],
+      "maxSize": "255"
+    }],
+    "references": [],
+    "primaryKeys": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }],
+    "primaryKeySqlName": "PK_TEN_I_C3D9DC",
+    "uniques": [{
+      "properties": [{
+        "dslType": "text",
+        "name": "identifier",
+        "wrappers": [],
+        "maxSize": "255"
+      }],
+      "sqlName": "UNQ_TEN_I_3F16D3"
+    }],
     "indices": []
   }, {
     "name": "DataVersion",
@@ -572,8 +530,13 @@
       "minSize": "1",
       "maxSize": "60"
     }, {
+      "dslType": "text",
+      "name": "email",
+      "wrappers": ["OPTIONAL"],
+      "maxSize": "255"
+    }, {
       "dslType": "date",
-      "name": "birthdate",
+      "name": "birthday",
       "wrappers": ["OPTIONAL"]
     }, {
       "dslType": "boolean",
@@ -582,42 +545,6 @@
     }, {
       "dslType": "enum",
       "name": "role",
-      "wrappers": ["OPTIONAL"]
-    }, {
-      "dslType": "text",
-      "name": "email",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "6",
-      "maxSize": "128"
-    }, {
-      "dslType": "text",
-      "name": "passwordHash",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "6",
-      "maxSize": "128"
-    }, {
-      "dslType": "text",
-      "name": "emailVerificationCode",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "64",
-      "maxSize": "64"
-    }, {
-      "dslType": "datetime",
-      "name": "emailVerificationCodeTimestamp",
-      "wrappers": ["OPTIONAL"]
-    }, {
-      "dslType": "boolean",
-      "name": "emailVerified",
-      "wrappers": ["OPTIONAL"]
-    }, {
-      "dslType": "text",
-      "name": "resetPasswordCode",
-      "wrappers": ["OPTIONAL"],
-      "minSize": "64",
-      "maxSize": "64"
-    }, {
-      "dslType": "datetime",
-      "name": "resetPasswordCodeTimestamp",
       "wrappers": ["OPTIONAL"]
     }],
     "references": [{
@@ -646,6 +573,196 @@
     }],
     "primaryKeySqlName": "PK_USE_HIS_I_BDCDBC",
     "uniques": [],
+    "indices": []
+  }, {
+    "name": "PetHistory",
+    "properties": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }, {
+      "dslType": "text",
+      "name": "correlationId",
+      "wrappers": ["OPTIONAL"],
+      "maxSize": "255"
+    }, {
+      "dslType": "long",
+      "name": "entityId",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "referenceId",
+      "wrappers": ["OPTIONAL"]
+    }, {
+      "dslType": "datetime",
+      "name": "changeTime",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "previousId",
+      "wrappers": ["OPTIONAL"]
+    }, {
+      "dslType": "long",
+      "name": "ownerId",
+      "wrappers": ["OPTIONAL"]
+    }, {
+      "dslType": "text",
+      "name": "name",
+      "wrappers": ["OPTIONAL"],
+      "minSize": "2",
+      "maxSize": "40"
+    }, {
+      "dslType": "date",
+      "name": "birthday",
+      "wrappers": ["OPTIONAL"]
+    }, {
+      "dslType": "enum",
+      "name": "petType",
+      "wrappers": ["OPTIONAL"]
+    }, {
+      "dslType": "boolean",
+      "name": "vaccinated",
+      "wrappers": ["OPTIONAL"]
+    }],
+    "references": [{
+      "name": "reference",
+      "model": "Pet",
+      "properties": [{
+        "dslType": "long",
+        "name": "referenceId",
+        "wrappers": ["OPTIONAL"]
+      }],
+      "sqlName": "FK_PET_HIS.R_PET.I_C6B806"
+    }, {
+      "name": "previous",
+      "model": "PetHistory",
+      "properties": [{
+        "dslType": "long",
+        "name": "previousId",
+        "wrappers": ["OPTIONAL"]
+      }],
+      "sqlName": "FK_PET_HIS.P_PET_HIS.I_32A9DC"
+    }],
+    "primaryKeys": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }],
+    "primaryKeySqlName": "PK_PET_HIS_I_CA7B49",
+    "uniques": [],
+    "indices": [{
+      "properties": [{
+        "dslType": "enum",
+        "name": "petType",
+        "wrappers": ["OPTIONAL"]
+      }],
+      "sqlName": "IND_PET_HIS_PT_D52742"
+    }]
+  }, {
+    "name": "VetVetSpecialty",
+    "properties": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "vetId",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "vetSpecialtyId",
+      "wrappers": []
+    }],
+    "references": [{
+      "name": "vet",
+      "model": "Vet",
+      "properties": [{
+        "dslType": "long",
+        "name": "vetId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET_VET_SPE.V_VET.I_8033DA"
+    }, {
+      "name": "vetSpecialty",
+      "model": "VetSpecialty",
+      "properties": [{
+        "dslType": "long",
+        "name": "vetSpecialtyId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET_VET_SPE.VS_VET_SPE.I_876D04"
+    }],
+    "primaryKeys": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }],
+    "primaryKeySqlName": "PK_VET_VET_SPE_I_B1BFA8",
+    "uniques": [{
+      "properties": [{
+        "dslType": "long",
+        "name": "vetId",
+        "wrappers": []
+      }, {
+        "dslType": "long",
+        "name": "vetSpecialtyId",
+        "wrappers": []
+      }],
+      "sqlName": "UNQ_VET_VET_SPE_VI_VSI_AE9103"
+    }],
+    "indices": []
+  }, {
+    "name": "VetSpecialtyVet",
+    "properties": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "vetSpecialtyId",
+      "wrappers": []
+    }, {
+      "dslType": "long",
+      "name": "vetId",
+      "wrappers": []
+    }],
+    "references": [{
+      "name": "vetSpecialty",
+      "model": "VetSpecialty",
+      "properties": [{
+        "dslType": "long",
+        "name": "vetSpecialtyId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET_SPE_VET.VS_VET_SPE.I_A324AF"
+    }, {
+      "name": "vet",
+      "model": "Vet",
+      "properties": [{
+        "dslType": "long",
+        "name": "vetId",
+        "wrappers": []
+      }],
+      "sqlName": "FK_VET_SPE_VET.V_VET.I_FD9236"
+    }],
+    "primaryKeys": [{
+      "dslType": "long",
+      "name": "id",
+      "wrappers": []
+    }],
+    "primaryKeySqlName": "PK_VET_SPE_VET_I_90A0E0",
+    "uniques": [{
+      "properties": [{
+        "dslType": "long",
+        "name": "vetSpecialtyId",
+        "wrappers": []
+      }, {
+        "dslType": "long",
+        "name": "vetId",
+        "wrappers": []
+      }],
+      "sqlName": "UNQ_VET_SPE_VET_VI_VSI_29A54B"
+    }],
     "indices": []
   }]
 }

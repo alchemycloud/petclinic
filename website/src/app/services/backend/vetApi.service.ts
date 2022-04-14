@@ -24,7 +24,7 @@ export class VetApiService {
 
   createVet(request: CreateVetRequest): Observable<CreateVetResponse> {
     return this.http.post<CreateVetResponse>(
-      environment.backendUrl + '/vet', request, {
+      environment.backendUrl + '/vets/create-vet', request, {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<CreateVetResponse>('createVet'))
@@ -32,39 +32,39 @@ export class VetApiService {
   }
 
   deleteVet(request: DeleteVetRequest): Observable<Record<string, never>> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
     return this.http.delete<Record<string, never>>(
-      environment.backendUrl + '/vet/${request.id}', {
-        headers: this.header()
+      environment.backendUrl + '/vets/delete-vet', {
+        headers: this.header(),
+        params
       }).pipe(
       catchError(this.handleError<Record<string, never>>('deleteVet'))
     );
   }
 
-  vetsWithSpecialties(request: VetDTO): Observable<Array<VetWithSpecialtiesDTO>> {
-    let params: HttpParams = new HttpParams();
-    if (request.id !== null) {
-      params = params.set('id', request.id.toString());
-    }
-    if (request.firstName !== null) {
-      params = params.set('firstName', request.firstName.toString());
-    }
-    if (request.lastName !== null) {
-      params = params.set('lastName', request.lastName.toString());
-    }
-
+  vetsWithSpecialties(): Observable<Array<VetWithSpecialtiesDTO>> {
     return this.http.get<Array<VetWithSpecialtiesDTO>>(
-      environment.backendUrl + '/vets', {
-        headers: this.header(),
-        params
+      environment.backendUrl + '/vets/vets-with-specialties', {
+        headers: this.header()
       }).pipe(
       catchError(this.handleError<Array<VetWithSpecialtiesDTO>>('vetsWithSpecialties'))
     );
   }
 
   readVet(request: ReadVetRequest): Observable<ReadVetResponse> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
     return this.http.get<ReadVetResponse>(
-      environment.backendUrl + '/vet/${request.id}', {
-        headers: this.header()
+      environment.backendUrl + '/vets/read-vet', {
+        headers: this.header(),
+        params
       }).pipe(
       catchError(this.handleError<ReadVetResponse>('readVet'))
     );
@@ -72,19 +72,19 @@ export class VetApiService {
 
   updateVet(request: UpdateVetRequest): Observable<UpdateVetResponse> {
     return this.http.put<UpdateVetResponse>(
-      environment.backendUrl + '/vet/${request.id}', request, {
+      environment.backendUrl + '/vets/update-vet', request, {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<UpdateVetResponse>('updateVet'))
     );
   }
 
-  vetInfo(request: VetInfoRequest): Observable<VetWithSpecialtiesDTO> {
-    return this.http.get<VetWithSpecialtiesDTO>(
-      environment.backendUrl + '/vet/info/${request.id}', {
+  vetInfo(request: VetInfoRequest): Observable<Array<VetWithSpecialtiesDTO>> {
+    return this.http.get<Array<VetWithSpecialtiesDTO>>(
+      environment.backendUrl + '/vets/vet/info/${request.id}', {
         headers: this.header()
       }).pipe(
-      catchError(this.handleError<VetWithSpecialtiesDTO>('vetInfo'))
+      catchError(this.handleError<Array<VetWithSpecialtiesDTO>>('vetInfo'))
     );
   }
 
@@ -178,13 +178,16 @@ export class UpdateVetRequest {
   id: number;
   userId: number;
   image: FileDTO;
+  userId: number;
 
   constructor(id: number,
               userId: number,
-              image: FileDTO) {
+              image: FileDTO,
+              userId: number) {
     this.id = id;
     this.userId = userId;
     this.image = image;
+    this.userId = userId;
   }
 
 }
@@ -201,11 +204,14 @@ export class VetInfoRequest {
 export class CreateVetRequest {
   userId: number;
   image: FileDTO;
+  userId: number;
 
   constructor(userId: number,
-              image: FileDTO) {
+              image: FileDTO,
+              userId: number) {
     this.userId = userId;
     this.image = image;
+    this.userId = userId;
   }
 
 }
@@ -215,21 +221,6 @@ export class ReadVetRequest {
 
   constructor(id: number) {
     this.id = id;
-  }
-
-}
-
-export class VetDTO {
-  id: number;
-  firstName: string;
-  lastName: string;
-
-  constructor(id: number,
-              firstName: string,
-              lastName: string) {
-    this.id = id;
-    this.firstName = firstName;
-    this.lastName = lastName;
   }
 
 }

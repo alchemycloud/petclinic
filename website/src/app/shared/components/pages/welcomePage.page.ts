@@ -1,6 +1,5 @@
 import {SessionService} from '../../../services/session.service';
 import {Footer} from '../containers/footer.container';
-import {PublicHeader} from '../containers/publicHeader.container';
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -19,8 +18,6 @@ export class WelcomePageModel {
   styleUrls: ['./welcomePage.page.scss']
 })
 export class WelcomePage implements OnInit, AfterViewInit {
-  @ViewChild(PublicHeader)
-  private readonly headerElement: PublicHeader;
   @ViewChild(Footer)
   private readonly footerElement: Footer;
   model: WelcomePageModel = new WelcomePageModel();

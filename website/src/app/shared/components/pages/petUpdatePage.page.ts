@@ -1,4 +1,4 @@
-import {UserRole} from '../../../services/backend/enums';
+import {UserRole} from '../../../services/administration/enums';
 import {SessionService} from '../../../services/session.service';
 import {Footer} from '../containers/footer.container';
 import {PrivateHeader} from '../containers/privateHeader.container';
@@ -25,7 +25,7 @@ export class PetUpdatePage implements OnInit, AfterViewInit {
   @ViewChild(PrivateHeader)
   private readonly headerElement: PrivateHeader;
   @ViewChild(PetUpdateForm)
-  private readonly formdasdasElement: PetUpdateForm;
+  private readonly formElement: PetUpdateForm;
   @ViewChild(Footer)
   private readonly footerElement: Footer;
   model: PetUpdatePageModel = new PetUpdatePageModel();

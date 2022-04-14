@@ -1,12 +1,8 @@
 import {AppMaterialModule} from '../app-material.module';
 import {AutoFocusDirective} from '../directive/autoFocus.directive';
-import {AuthenticationApiService} from '../services/backend/authenticationApi.service';
-import {FileApiService} from '../services/backend/fileApi.service';
-import {OwnerApiService} from '../services/backend/ownerApi.service';
-import {PetApiService} from '../services/backend/petApi.service';
-import {UserApiService} from '../services/backend/userApi.service';
-import {VetApiService} from '../services/backend/vetApi.service';
-import {VisitApiService} from '../services/backend/visitApi.service';
+import {AuthenticationApiService} from '../services/administration/authenticationApi.service';
+import {TenantApiService} from '../services/administration/tenantApi.service';
+import {UserApiService} from '../services/administration/userApi.service';
 import {SessionService} from '../services/session.service';
 import {ChangePasswordForm} from './components/forms/changePasswordForm.form';
 import {ForgotPasswordForm, ForgotPasswordFormConfirm} from './components/forms/forgotPasswordForm.form';
@@ -49,13 +45,9 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
   ],
   providers: [
     SessionService,
-    VetApiService,
-    VisitApiService,
     AuthenticationApiService,
-    PetApiService,
-    UserApiService,
-    OwnerApiService,
-    FileApiService
+    TenantApiService,
+    UserApiService
   ],
   exports: [
     AutoFocusDirective,

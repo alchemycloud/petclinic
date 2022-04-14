@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="generator" id="1.0.0.1648442042894">
+        <!--CREATE TABLES-->
+        <createTable tableName="User">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="firstName" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastName" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastHistoryId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="Vet">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="userId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imagePath" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="Owner">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="userId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="city" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="telephone" type="VARCHAR(15)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="Pet">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="ownerId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="petType" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vaccinated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastHistoryId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="VetSpecialty">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="Visit">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="vetId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="petId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visitNumber" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="petWeight" type="DECIMAL(24, 8)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="description" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+            <column defaultValueBoolean="false" name="scheduled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="Tenant">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="identifier" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="DataVersion">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="major" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minor" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revision" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lock" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lockTime" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="DataProcessorLog">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="major" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minor" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revision" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="UserHistory">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="correlationId" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="entityId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="referenceId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="changeTime" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previousId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="firstName" type="VARCHAR(40)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lastName" type="VARCHAR(60)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="PetHistory">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="correlationId" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="entityId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="referenceId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="changeTime" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previousId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ownerId" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="VARCHAR(40)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="birthday" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="petType" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="vaccinated" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createTable tableName="VetVetSpecialty">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="vetId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vetSpecialtyId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="VetSpecialtyVet">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="vetSpecialtyId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vetId" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!--ADD FOREIGN KEYS-->
+        <addForeignKeyConstraint baseColumnNames="lastHistoryId" baseTableName="User" constraintName="FK_USE.LH_USE_HIS.I_AD7B6" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="UserHistory"/>
+        <addForeignKeyConstraint baseColumnNames="userId" baseTableName="Vet" constraintName="FK_VET.U_USE.I_BFCEB" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="userId" baseTableName="Vet" constraintName="FK_VET.U_USE.I_BFCEB" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="userId" baseTableName="Owner" constraintName="FK_OWN.U_USE.I_2F501" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="ownerId" baseTableName="Pet" constraintName="FK_PET.O_OWN.I_4FB44" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Owner"/>
+        <addForeignKeyConstraint baseColumnNames="lastHistoryId" baseTableName="Pet" constraintName="FK_PET.LH_PET_HIS.I_2BB9F" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="PetHistory"/>
+        <addForeignKeyConstraint baseColumnNames="vetId" baseTableName="Visit" constraintName="FK_VIS.V_VET.I_11FF4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Vet"/>
+        <addForeignKeyConstraint baseColumnNames="petId" baseTableName="Visit" constraintName="FK_VIS.P_PET.I_C8071" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Pet"/>
+        <addForeignKeyConstraint baseColumnNames="referenceId" baseTableName="UserHistory" constraintName="FK_USE_HIS.R_USE.I_7A17F" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="User"/>
+        <addForeignKeyConstraint baseColumnNames="previousId" baseTableName="UserHistory" constraintName="FK_USE_HIS.P_USE_HIS.I_8E613" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="UserHistory"/>
+        <addForeignKeyConstraint baseColumnNames="referenceId" baseTableName="PetHistory" constraintName="FK_PET_HIS.R_PET.I_C6B80" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Pet"/>
+        <addForeignKeyConstraint baseColumnNames="previousId" baseTableName="PetHistory" constraintName="FK_PET_HIS.P_PET_HIS.I_32A9D" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="PetHistory"/>
+        <addForeignKeyConstraint baseColumnNames="vetId" baseTableName="VetVetSpecialty" constraintName="FK_VET_VET_SPE.V_VET.I_8033D" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Vet"/>
+        <addForeignKeyConstraint baseColumnNames="vetSpecialtyId" baseTableName="VetVetSpecialty" constraintName="FK_VET_VET_SPE.VS_VET_SPE.I_876D0" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="VetSpecialty"/>
+        <addForeignKeyConstraint baseColumnNames="vetSpecialtyId" baseTableName="VetSpecialtyVet" constraintName="FK_VET_SPE_VET.VS_VET_SPE.I_A324A" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="VetSpecialty"/>
+        <addForeignKeyConstraint baseColumnNames="vetId" baseTableName="VetSpecialtyVet" constraintName="FK_VET_SPE_VET.V_VET.I_FD923" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="Vet"/>
+        <!--ADD UNIQUE CONSTRAINTS-->
+        <addUniqueConstraint columnNames="userId, userId" constraintName="UNQ_VET_UI_UI_E6949" tableName="Vet"/>
+        <addUniqueConstraint columnNames="userId" constraintName="UNQ_OWN_UI_9901B" tableName="Owner"/>
+        <addUniqueConstraint columnNames="name" constraintName="UNQ_VET_SPE_N_07349" tableName="VetSpecialty"/>
+        <addUniqueConstraint columnNames="identifier" constraintName="UNQ_TEN_I_3F16D" tableName="Tenant"/>
+        <addUniqueConstraint columnNames="major, minor, revision, number" constraintName="UNQ_DAT_PRO_LOG_M_M_N_R_01E56" tableName="DataProcessorLog"/>
+        <addUniqueConstraint columnNames="vetId, vetSpecialtyId" constraintName="UNQ_VET_VET_SPE_VI_VSI_AE910" tableName="VetVetSpecialty"/>
+        <addUniqueConstraint columnNames="vetSpecialtyId, vetId" constraintName="UNQ_VET_SPE_VET_VI_VSI_29A54" tableName="VetSpecialtyVet"/>
+        <!--ADD INDICES-->
+        <createIndex indexName="IND_PET_PT_9A7DF" tableName="Pet">
+            <column name="petType" type="VARCHAR(255)"/>
+        </createIndex>
+        <createIndex indexName="IND_PET_HIS_PT_D5274" tableName="PetHistory">
+            <column name="petType" type="VARCHAR(255)"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

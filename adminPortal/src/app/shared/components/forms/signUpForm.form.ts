@@ -1,4 +1,4 @@
-import {AuthenticationApiService, SignUpRequest} from '../../../services/backend/authenticationApi.service';
+import {AuthenticationApiService, SignUpRequest} from '../../../services/administration/authenticationApi.service';
 import {SessionService} from '../../../services/session.service';
 import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
@@ -8,20 +8,20 @@ import {debounceTime, tap} from 'rxjs/operators';
 export class SignUpFormModel {
   firstName: string;
   lastName: string;
-  birthdate: Date;
+  birthday: Date;
   active: boolean;
   email: string;
   password: string;
 
   constructor(firstName: string,
               lastName: string,
-              birthdate: Date,
+              birthday: Date,
               active: boolean,
               email: string,
               password: string) {
     this.firstName = firstName;
     this.lastName = lastName;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.active = active;
     this.email = email;
     this.password = password;
@@ -40,7 +40,7 @@ export class SignUpForm implements OnInit, AfterViewInit {
   formGroup: FormGroup;
   firstNameControl: FormControl;
   lastNameControl: FormControl;
-  birthdateControl: FormControl;
+  birthdayControl: FormControl;
   activeControl: FormControl;
   emailControl: FormControl;
   passwordControl: FormControl;
@@ -61,7 +61,7 @@ export class SignUpForm implements OnInit, AfterViewInit {
         Validators.required,
         Validators.minLength(1),
         Validators.maxLength(60)], []),
-      birthdate: new FormControl(this.model.birthdate, [
+      birthday: new FormControl(this.model.birthday, [
         Validators.required], []),
       active: new FormControl(this.model.active, [
         Validators.required], []),
@@ -78,7 +78,7 @@ export class SignUpForm implements OnInit, AfterViewInit {
     });
     this.firstNameControl = this.formGroup.get('firstName') as FormControl;
     this.lastNameControl = this.formGroup.get('lastName') as FormControl;
-    this.birthdateControl = this.formGroup.get('birthdate') as FormControl;
+    this.birthdayControl = this.formGroup.get('birthday') as FormControl;
     this.activeControl = this.formGroup.get('active') as FormControl;
     this.emailControl = this.formGroup.get('email') as FormControl;
     this.passwordControl = this.formGroup.get('password') as FormControl;
@@ -87,7 +87,7 @@ export class SignUpForm implements OnInit, AfterViewInit {
       // fill the model with new data
       this.model.firstName = this.firstNameControl.value;
       this.model.lastName = this.lastNameControl.value;
-      this.model.birthdate = this.birthdateControl.value;
+      this.model.birthday = this.birthdayControl.value;
       this.model.active = this.activeControl.value;
       this.model.email = this.emailControl.value;
       this.model.password = this.passwordControl.value;
@@ -110,7 +110,7 @@ export class SignUpForm implements OnInit, AfterViewInit {
     this.submitDisabled = true;
     this.authenticationApi.signUp(new SignUpRequest(this.model.firstName,
       this.model.lastName,
-      this.model.birthdate,
+      this.model.birthday,
       this.model.active,
       this.model.email,
       this.model.password))

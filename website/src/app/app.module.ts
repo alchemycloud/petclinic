@@ -11,13 +11,11 @@ import {AppMaterialModule} from './app-material.module';
 import {AuthInterceptor} from './services/authInterceptor.service';
 import {VersionInterceptor, VersionChangedComponent} from './services/versionInterceptor.service';
 import {JwtModule, JwtModuleOptions} from '@auth0/angular-jwt';
-import {environment} from '../environments/environment';
+import {AuthenticationApiService} from './services/administration/authenticationApi.service';
 import {AuthGuard} from './services/authGuard.service';
-import {AuthenticationApiService} from './services/backend/authenticationApi.service';
 import {FileApiService} from './services/backend/fileApi.service';
 import {OwnerApiService} from './services/backend/ownerApi.service';
 import {PetApiService} from './services/backend/petApi.service';
-import {UserApiService} from './services/backend/userApi.service';
 import {VetApiService} from './services/backend/vetApi.service';
 import {VisitApiService} from './services/backend/visitApi.service';
 import {SessionService} from './services/session.service';
@@ -29,7 +27,7 @@ const JWT_Module_Options: JwtModuleOptions = {
     tokenGetter: () => {
       return localStorage.getItem('accessToken');
     },
-    whitelistedDomains: [environment.backendUrl]
+    whitelistedDomains: [environment.administrationUrl]
   }
 };
 
@@ -82,11 +80,10 @@ export class DontReuseRoutes implements RouteReuseStrategy {
     {provide: RouteReuseStrategy, useClass: DontReuseRoutes},
     SessionService,
     AuthGuard,
+    AuthenticationApiService,
     VetApiService,
     VisitApiService,
-    AuthenticationApiService,
     PetApiService,
-    UserApiService,
     OwnerApiService,
     FileApiService
   ],

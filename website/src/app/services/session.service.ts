@@ -1,4 +1,5 @@
-import {UserRole} from './backend/enums';
+import {UserRole} from './administration/enums';
+import {SignInResponseTenants, SignInResponseTokens} from './authenticationApi.service';
 import {Injectable} from '@angular/core';
 
 @Injectable()
@@ -7,36 +8,50 @@ export class SessionService {
   constructor() {
   }
 
+  private static activeTenant: string;
+
+  setActiveTenant(tenant: string) {
+    SessionService.activeTenant = tenant;
+  }
+
+  getActiveTenant() {
+    return SessionService.activeTenant;
+  }
+
   public getAccessToken() {
-    return this.getSessionData().accessToken;
+    if (SessionService.activeTenant === null) {
+      return this.getSessionData().accessToken;
+    }
+    return this.getSessionData().tokens.find(token => token.tenant === SessionService.activeTenant).accessToken;
   }
 
   public getRefreshToken() {
-    return this.getSessionData().refreshToken;
+    if (SessionService.activeTenant === null) {
+      return this.getSessionData().refreshToken;
+    }
+    return this.getSessionData().tokens.find(token => token.tenant === SessionService.activeTenant).refreshToken;
   }
 
   public save(sessionData: SessionData) {
     localStorage.setItem('accessToken', sessionData.accessToken);
     localStorage.setItem('refreshToken', sessionData.refreshToken);
-    localStorage.setItem('id', String(sessionData.id));
+    localStorage.setItem('tokens', JSON.stringify(sessionData.tokens));
+    localStorage.setItem('email', sessionData.email);
+    localStorage.setItem('role', UserRole[sessionData.role]);
     localStorage.setItem('firstName', sessionData.firstName);
     localStorage.setItem('lastName', sessionData.lastName);
-    localStorage.setItem('birthdate', sessionData.birthdate);
-    localStorage.setItem('active', String(sessionData.active));
-    localStorage.setItem('role', UserRole[sessionData.role]);
-    localStorage.setItem('email', sessionData.email);
+    localStorage.setItem('tenants', JSON.stringify(sessionData.tenants));
   }
 
   public clear() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('id');
+    localStorage.removeItem('tokens');
+    localStorage.removeItem('email');
+    localStorage.removeItem('role');
     localStorage.removeItem('firstName');
     localStorage.removeItem('lastName');
-    localStorage.removeItem('birthdate');
-    localStorage.removeItem('active');
-    localStorage.removeItem('role');
-    localStorage.removeItem('email');
+    localStorage.removeItem('tenants');
   }
 
   public getSessionData(): SessionData {
@@ -44,13 +59,12 @@ export class SessionService {
       return new SessionData(
         localStorage.getItem('accessToken'),
         localStorage.getItem('refreshToken'),
-        Number(localStorage.getItem('id')),
+        JSON.parse(localStorage.getItem('tokens') || '[]'),
+        localStorage.getItem('email'),
+        UserRole[localStorage.getItem('role')],
         localStorage.getItem('firstName'),
         localStorage.getItem('lastName'),
-        localStorage.getItem('birthdate'),
-        JSON.parse(localStorage.getItem('active')),
-        UserRole[localStorage.getItem('role')],
-        localStorage.getItem('email')
+        JSON.parse(localStorage.getItem('tenants') || '[]')
       );
     } else {
       return null;
@@ -66,32 +80,29 @@ export class SessionService {
 export class SessionData {
   accessToken: string;
   refreshToken: string;
-  id: number;
+  tokens: Array<SignInResponseTokens>;
+  email: string;
+  role: UserRole;
   firstName: string;
   lastName: string;
-  birthdate: Date;
-  active: boolean;
-  role: UserRole;
-  email: string;
+  tenants: Array<SignInResponseTenants>;
 
   constructor(accessToken: string,
               refreshToken: string,
-              id: number,
+              tokens: Array<SignInResponseTokens>,
+              email: string,
+              role: UserRole,
               firstName: string,
               lastName: string,
-              birthdate: Date,
-              active: boolean,
-              role: UserRole,
-              email: string) {
+              tenants: Array<SignInResponseTenants>) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    this.id = id;
+    this.tokens = tokens;
+    this.email = email;
+    this.role = role;
     this.firstName = firstName;
     this.lastName = lastName;
-    this.birthdate = birthdate;
-    this.active = active;
-    this.role = role;
-    this.email = email;
+    this.tenants = tenants;
   }
 
 }

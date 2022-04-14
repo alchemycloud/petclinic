@@ -7,6 +7,7 @@ import {
   UpdatePetRequest,
   UpdatePetResponse
 } from '../../../services/backend/petApi.service';
+import {SessionService} from '../../../services/session.service';
 import {PetTypeDropDown} from '../dropdowns/petTypeDropDown.dropdown';
 import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
@@ -17,20 +18,20 @@ export class PetUpdateFormModel {
   id: number;
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(id: number,
               ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.id = id;
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
   }
@@ -52,11 +53,12 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
   formGroup: FormGroup;
   ownerIdControl: FormControl;
   nameControl: FormControl;
-  birthdateControl: FormControl;
+  birthdayControl: FormControl;
   petTypeControl: FormControl;
   vaccinatedControl: FormControl;
 
-  constructor(private readonly petApi: PetApiService, private readonly router: Router, private readonly fb: FormBuilder) {
+  constructor(private readonly petApi: PetApiService, private readonly router: Router, private readonly sessionService: SessionService,
+              private readonly fb: FormBuilder) {
 
   }
 
@@ -70,7 +72,7 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(40)], []),
-      birthdate: new FormControl(this.model.birthdate, [
+      birthday: new FormControl(this.model.birthday, [
         Validators.required], []),
       petType: new FormControl(this.model.petType, [
         Validators.required], []),
@@ -79,7 +81,7 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
     });
     this.ownerIdControl = this.formGroup.get('ownerId') as FormControl;
     this.nameControl = this.formGroup.get('name') as FormControl;
-    this.birthdateControl = this.formGroup.get('birthdate') as FormControl;
+    this.birthdayControl = this.formGroup.get('birthday') as FormControl;
     this.petTypeControl = this.formGroup.get('petType') as FormControl;
     this.vaccinatedControl = this.formGroup.get('vaccinated') as FormControl;
 
@@ -87,7 +89,7 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
       // fill the model with new data
       this.model.ownerId = this.ownerIdControl.value;
       this.model.name = this.nameControl.value;
-      this.model.birthdate = this.birthdateControl.value;
+      this.model.birthday = this.birthdayControl.value;
       this.model.petType = this.petTypeControl.value;
       this.model.vaccinated = this.vaccinatedControl.value;
     }), debounceTime(675)).subscribe((newStatus) => {
@@ -116,12 +118,12 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
     this.petApi.updatePet(new UpdatePetRequest(this.model.id,
       this.model.ownerId,
       this.model.name,
-      this.model.birthdate,
+      this.model.birthday,
       this.model.petType,
       this.model.vaccinated))
       .subscribe((response: UpdatePetResponse) => {
         this.submitDisabled = false;
-        this.router.navigate(['/private/pets']);
+        this.router.navigate([this.sessionService.getActiveTenant() + '/private/pets']);
       }, (_) => {
         this.submitDisabled = false;
       });
@@ -133,7 +135,7 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
         this.model.id = response.id;
         this.model.ownerId = response.ownerId;
         this.model.name = response.name;
-        this.model.birthdate = response.birthdate;
+        this.model.birthday = response.birthday;
         this.model.petType = response.petType;
         this.model.vaccinated = response.vaccinated;
         this.formGroup.patchValue(response, {emitEvent: false});
@@ -151,7 +153,7 @@ export class PetUpdateForm implements OnChanges, OnInit, AfterViewInit {
     this.petApi.deletePet(new DeletePetRequest(this.id))
       .subscribe(() => {
         this.deleteButtonDisabled = false;
-        this.router.navigate(['/private/pets']);
+        this.router.navigate([this.sessionService.getActiveTenant() + '/private/pets']);
       }, (_) => {
         this.deleteButtonDisabled = false;
       });

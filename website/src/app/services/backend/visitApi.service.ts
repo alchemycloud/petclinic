@@ -1,6 +1,6 @@
 import {environment} from '../../../environments/environment';
 import {TraceService} from '../traceService.service';
-import {PetType, UserRole} from './enums';
+import {PetType} from './enums';
 import {PagedDto} from './pagedDto';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
@@ -23,61 +23,61 @@ export class VisitApiService {
 
   }
 
-  myVisits(request: MyVisitsRequest): Observable<Array<MyVisitsResponse>> {
+  visitsForOwner(request: VisitsForOwnerRequest): Observable<PagedDto<VisitDTO>> {
     let params: HttpParams = new HttpParams();
-    if (request.userIdId !== null) {
-      params = params.set('userIdId', request.userIdId.toString());
+    if (request.drop !== null) {
+      params = params.set('drop', request.drop.toString());
+    }
+    if (request.take !== null) {
+      params = params.set('take', request.take.toString());
     }
 
-    return this.http.get<Array<MyVisitsResponse>>(
-      environment.backendUrl + '/visit/my-visits', {
+    return this.http.get<PagedDto<VisitDTO>>(
+      environment.backendUrl + '/visits/visits-for-owner', {
         headers: this.header(),
         params
       }).pipe(
-      catchError(this.handleError<Array<MyVisitsResponse>>('myVisits'))
+      catchError(this.handleError<PagedDto<VisitDTO>>('visitsForOwner'))
     );
   }
 
-  scheduledVisits(): Observable<Array<ScheduledVisitsResponse>> {
-    return this.http.get<Array<ScheduledVisitsResponse>>(
-      environment.backendUrl + '/visit/scheduled', {
-        headers: this.header()
+  scheduledVisits(request: ScheduledVisitsRequest): Observable<PagedDto<VisitDTO>> {
+    let params: HttpParams = new HttpParams();
+    if (request.drop !== null) {
+      params = params.set('drop', request.drop.toString());
+    }
+    if (request.take !== null) {
+      params = params.set('take', request.take.toString());
+    }
+
+    return this.http.get<PagedDto<VisitDTO>>(
+      environment.backendUrl + '/visits/scheduled-visits', {
+        headers: this.header(),
+        params
       }).pipe(
-      catchError(this.handleError<Array<ScheduledVisitsResponse>>('scheduledVisits'))
+      catchError(this.handleError<PagedDto<VisitDTO>>('scheduledVisits'))
     );
   }
 
   readVisit(request: ReadVisitRequest): Observable<ReadVisitResponse> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
     return this.http.get<ReadVisitResponse>(
-      environment.backendUrl + '/visit/visit/${request.id}', {
-        headers: this.header()
+      environment.backendUrl + '/visits/read-visit', {
+        headers: this.header(),
+        params
       }).pipe(
       catchError(this.handleError<ReadVisitResponse>('readVisit'))
     );
   }
 
-  updateVisit(request: UpdateVisitRequest): Observable<UpdateVisitResponse> {
-    return this.http.put<UpdateVisitResponse>(
-      environment.backendUrl + '/visit/visit/${request.id}', request, {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<UpdateVisitResponse>('updateVisit'))
-    );
-  }
-
-  deleteVisit(request: DeleteVisitRequest): Observable<Record<string, never>> {
-    return this.http.delete<Record<string, never>>(
-      environment.backendUrl + '/visit/visit/${request.id}', {
-        headers: this.header()
-      }).pipe(
-      catchError(this.handleError<Record<string, never>>('deleteVisit'))
-    );
-  }
-
-  vetVisits(request: VetVisitsRequest): Observable<PagedDto<VetVisitsResponse>> {
+  visitsByVet(request: VisitsByVetRequest): Observable<PagedDto<VisitDTO>> {
     let params: HttpParams = new HttpParams();
-    if (request.userId !== null) {
-      params = params.set('userId', request.userId.toString());
+    if (request.vetId !== null) {
+      params = params.set('vetId', request.vetId.toString());
     }
     if (request.drop !== null) {
       params = params.set('drop', request.drop.toString());
@@ -86,18 +86,63 @@ export class VisitApiService {
       params = params.set('take', request.take.toString());
     }
 
-    return this.http.get<PagedDto<VetVisitsResponse>>(
-      environment.backendUrl + '/visit/vet-visits', {
+    return this.http.get<PagedDto<VisitDTO>>(
+      environment.backendUrl + '/visits/visits-by-vet', {
         headers: this.header(),
         params
       }).pipe(
-      catchError(this.handleError<PagedDto<VetVisitsResponse>>('vetVisits'))
+      catchError(this.handleError<PagedDto<VisitDTO>>('visitsByVet'))
+    );
+  }
+
+  updateVisit(request: UpdateVisitRequest): Observable<UpdateVisitResponse> {
+    return this.http.put<UpdateVisitResponse>(
+      environment.backendUrl + '/visits/update-visit', request, {
+        headers: this.header()
+      }).pipe(
+      catchError(this.handleError<UpdateVisitResponse>('updateVisit'))
+    );
+  }
+
+  visitsByPet(request: VisitsByPetRequest): Observable<PagedDto<VisitDTO>> {
+    let params: HttpParams = new HttpParams();
+    if (request.petId !== null) {
+      params = params.set('petId', request.petId.toString());
+    }
+    if (request.drop !== null) {
+      params = params.set('drop', request.drop.toString());
+    }
+    if (request.take !== null) {
+      params = params.set('take', request.take.toString());
+    }
+
+    return this.http.get<PagedDto<VisitDTO>>(
+      environment.backendUrl + '/visits/visits-by-pet', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<PagedDto<VisitDTO>>('visitsByPet'))
+    );
+  }
+
+  deleteVisit(request: DeleteVisitRequest): Observable<Record<string, never>> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
+    return this.http.delete<Record<string, never>>(
+      environment.backendUrl + '/visits/delete-visit', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<Record<string, never>>('deleteVisit'))
     );
   }
 
   createVisit(request: CreateVisitRequest): Observable<CreateVisitResponse> {
     return this.http.post<CreateVisitResponse>(
-      environment.backendUrl + '/visit/visit', request, {
+      environment.backendUrl + '/visits/create-visit', request, {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<CreateVisitResponse>('createVisit'))
@@ -199,37 +244,22 @@ export class ReadVisitRequest {
 
 }
 
-export class UpdateVisitRequest {
-  id: number;
+export class VisitsByVetRequest {
   vetId: number;
-  petId: number;
-  visitNumber: number;
-  timestamp: Date;
-  petWeight: number;
-  description: string;
-  scheduled: boolean;
+  drop: number;
+  take: number;
 
-  constructor(id: number,
-              vetId: number,
-              petId: number,
-              visitNumber: number,
-              timestamp: Date,
-              petWeight: number,
-              description: string,
-              scheduled: boolean) {
-    this.id = id;
+  constructor(vetId: number,
+              drop: number,
+              take: number) {
     this.vetId = vetId;
-    this.petId = petId;
-    this.visitNumber = visitNumber;
-    this.timestamp = timestamp;
-    this.petWeight = petWeight;
-    this.description = description;
-    this.scheduled = scheduled;
+    this.drop = drop;
+    this.take = take;
   }
 
 }
 
-export class ScheduledVisitsResponse {
+export class UpdateVisitRequest {
   id: number;
   vetId: number;
   petId: number;
@@ -286,119 +316,29 @@ export class CreateVisitRequest {
 
 }
 
-export class MyVisitsResponse {
-  id: number;
-  vetId: number;
+export class VisitsByPetRequest {
   petId: number;
-  visitNumber: number;
-  timestamp: Date;
-  petWeight: number;
-  description: string;
-  scheduled: boolean;
-  petOwnerId: number;
-  petName: string;
-  petBirthdate: Date;
-  petPetType: PetType;
-  petVaccinated: boolean;
-  ownerId: number;
-  ownerUserId: number;
-  ownerAddress: string;
-  ownerCity: string;
-  ownerTelephone: string;
-  userId: number;
-  userFirstName: string;
-  userLastName: string;
-  userBirthdate: Date;
-  userActive: boolean;
-  userRole: UserRole;
-  userEmail: string;
-  userPasswordHash: string;
-  userEmailVerificationCode: string;
-  userEmailVerificationCodeTimestamp: Date;
-  userEmailVerified: boolean;
-  userResetPasswordCode: string;
-  userResetPasswordCodeTimestamp: Date;
+  drop: number;
+  take: number;
 
-  constructor(id: number,
-              vetId: number,
-              petId: number,
-              visitNumber: number,
-              timestamp: Date,
-              petWeight: number,
-              description: string,
-              scheduled: boolean,
-              petOwnerId: number,
-              petName: string,
-              petBirthdate: Date,
-              petPetType: PetType,
-              petVaccinated: boolean,
-              ownerId: number,
-              ownerUserId: number,
-              ownerAddress: string,
-              ownerCity: string,
-              ownerTelephone: string,
-              userId: number,
-              userFirstName: string,
-              userLastName: string,
-              userBirthdate: Date,
-              userActive: boolean,
-              userRole: UserRole,
-              userEmail: string,
-              userPasswordHash: string,
-              userEmailVerificationCode: string,
-              userEmailVerificationCodeTimestamp: Date,
-              userEmailVerified: boolean,
-              userResetPasswordCode: string,
-              userResetPasswordCodeTimestamp: Date) {
-    this.id = id;
-    this.vetId = vetId;
+  constructor(petId: number,
+              drop: number,
+              take: number) {
     this.petId = petId;
-    this.visitNumber = visitNumber;
-    this.timestamp = timestamp;
-    this.petWeight = petWeight;
-    this.description = description;
-    this.scheduled = scheduled;
-    this.petOwnerId = petOwnerId;
-    this.petName = petName;
-    this.petBirthdate = petBirthdate;
-    this.petPetType = petPetType;
-    this.petVaccinated = petVaccinated;
-    this.ownerId = ownerId;
-    this.ownerUserId = ownerUserId;
-    this.ownerAddress = ownerAddress;
-    this.ownerCity = ownerCity;
-    this.ownerTelephone = ownerTelephone;
-    this.userId = userId;
-    this.userFirstName = userFirstName;
-    this.userLastName = userLastName;
-    this.userBirthdate = userBirthdate;
-    this.userActive = userActive;
-    this.userRole = userRole;
-    this.userEmail = userEmail;
-    this.userPasswordHash = userPasswordHash;
-    this.userEmailVerificationCode = userEmailVerificationCode;
-    this.userEmailVerificationCodeTimestamp = userEmailVerificationCodeTimestamp;
-    this.userEmailVerified = userEmailVerified;
-    this.userResetPasswordCode = userResetPasswordCode;
-    this.userResetPasswordCodeTimestamp = userResetPasswordCodeTimestamp;
+    this.drop = drop;
+    this.take = take;
   }
 
 }
 
-export class VetVisitsResponse {
-  vetUserId: number;
-  petName: string;
-  visitNumber: number;
-  scheduled: boolean;
+export class ScheduledVisitsRequest {
+  drop: number;
+  take: number;
 
-  constructor(vetUserId: number,
-              petName: string,
-              visitNumber: number,
-              scheduled: boolean) {
-    this.vetUserId = vetUserId;
-    this.petName = petName;
-    this.visitNumber = visitNumber;
-    this.scheduled = scheduled;
+  constructor(drop: number,
+              take: number) {
+    this.drop = drop;
+    this.take = take;
   }
 
 }
@@ -433,24 +373,39 @@ export class ReadVisitResponse {
 
 }
 
-export class MyVisitsRequest {
-  userIdId: number;
+export class VisitDTO {
+  visitNumber: number;
+  description: string;
+  scheduled: boolean;
+  name: string;
+  petType: PetType;
+  firstName: string;
+  lastName: string;
 
-  constructor(userIdId: number) {
-    this.userIdId = userIdId;
+  constructor(visitNumber: number,
+              description: string,
+              scheduled: boolean,
+              name: string,
+              petType: PetType,
+              firstName: string,
+              lastName: string) {
+    this.visitNumber = visitNumber;
+    this.description = description;
+    this.scheduled = scheduled;
+    this.name = name;
+    this.petType = petType;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
 }
 
-export class VetVisitsRequest {
-  userId: number;
+export class VisitsForOwnerRequest {
   drop: number;
   take: number;
 
-  constructor(userId: number,
-              drop: number,
+  constructor(drop: number,
               take: number) {
-    this.userId = userId;
     this.drop = drop;
     this.take = take;
   }

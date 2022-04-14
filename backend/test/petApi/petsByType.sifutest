@@ -1,0 +1,3 @@
+tests backend.PetApi.petsByType(
+    test petsByType
+)

@@ -41,21 +41,21 @@
     </mat-form-field>
     <mat-form-field appearance="outline"
                     class="u-1/1">
-        <mat-label i18n="@@SIGN_UP_FORM_BIRTHDATE">Birthdate</mat-label>
+        <mat-label i18n="@@SIGN_UP_FORM_BIRTHDAY">Birthday</mat-label>
         <input matInput
-               formControlName="birthdate"
-               [ngxMatDatetimePicker]="birthdate"
+               formControlName="birthday"
+               [ngxMatDatetimePicker]="birthday"
                required
-               data-qa="birthdate"
-               i18n-placeholder="@@SIGN_UP_FORM_BIRTHDATE"
-               placeholder="Birthdate"
+               data-qa="birthday"
+               i18n-placeholder="@@SIGN_UP_FORM_BIRTHDAY"
+               placeholder="Birthday"
                autocomplete="off">
         <mat-datepicker-toggle matSuffix
-                               [for]="birthdate"></mat-datepicker-toggle>
-        <ngx-mat-datetime-picker #birthdate
+                               [for]="birthday"></mat-datepicker-toggle>
+        <ngx-mat-datetime-picker #birthday
                                  [enableMeridian]="true"></ngx-mat-datetime-picker>
-        <mat-error *ngIf="birthdateControl.hasError('required')"
-                   i18n="@@SIGN_UP_FORM_BIRTHDATE_REQUIRED">Birthdate is required</mat-error>
+        <mat-error *ngIf="birthdayControl.hasError('required')"
+                   i18n="@@SIGN_UP_FORM_BIRTHDAY_REQUIRED">Birthday is required</mat-error>
     </mat-form-field>
     <mat-checkbox formControlName="active"
                   data-qa="active"

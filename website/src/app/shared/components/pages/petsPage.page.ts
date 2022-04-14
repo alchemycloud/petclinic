@@ -1,4 +1,4 @@
-import {UserRole} from '../../../services/backend/enums';
+import {UserRole} from '../../../services/administration/enums';
 import {SessionService} from '../../../services/session.service';
 import {Footer} from '../containers/footer.container';
 import {PrivateHeader} from '../containers/privateHeader.container';
@@ -29,7 +29,7 @@ export class PetsPage implements OnInit, AfterViewInit {
   private readonly footerElement: Footer;
   model: PetsPageModel = new PetsPageModel();
 
-  constructor(private readonly router: Router, private readonly route: ActivatedRoute, private readonly sessionService: SessionService) {
+  constructor(private readonly router: Router, private readonly sessionService: SessionService, private readonly route: ActivatedRoute) {
     if (!([UserRole.VET].includes(sessionService.getSessionData().role)))
       this.router.navigate(['/welcome-page']);
   }
@@ -48,7 +48,7 @@ export class PetsPage implements OnInit, AfterViewInit {
   }
 
   onAddPetClick() {
-    this.router.navigate(['/private/pet/new']);
+    this.router.navigate([this.sessionService.getActiveTenant() + '/private/pet/new']);
   }
 
 }

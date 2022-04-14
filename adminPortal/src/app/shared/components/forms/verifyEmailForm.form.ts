@@ -1,4 +1,4 @@
-import {AuthenticationApiService, VerifyEmailRequest} from '../../../services/backend/authenticationApi.service';
+import {AuthenticationApiService, VerifyEmailRequest} from '../../../services/administration/authenticationApi.service';
 import {SessionService} from '../../../services/session.service';
 import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';

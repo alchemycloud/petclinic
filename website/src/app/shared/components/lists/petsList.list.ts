@@ -1,6 +1,7 @@
 import {PetType} from '../../../services/backend/enums';
 import {PagedDto} from '../../../services/backend/pagedDto';
 import {PetApiService, PetsRequest, PetsResponse} from '../../../services/backend/petApi.service';
+import {SessionService} from '../../../services/session.service';
 import {
   AfterViewInit,
   Component,
@@ -19,16 +20,16 @@ export class PetsListModel {
   id: number;
   name: string;
   petType: PetType;
-  userLastName: string;
+  ownerLastName: string;
 
   constructor(id: number,
               name: string,
               petType: PetType,
-              userLastName: string) {
+              ownerLastName: string) {
     this.id = id;
     this.name = name;
     this.petType = petType;
-    this.userLastName = userLastName;
+    this.ownerLastName = ownerLastName;
   }
 
 }
@@ -55,7 +56,7 @@ export class PetsList implements OnChanges, OnInit, AfterViewInit {
   @Output() onSelected = new EventEmitter<Selected>();
   @ViewChild(MatPaginator) matPaginator: MatPaginator;
 
-  constructor(private readonly petApi: PetApiService, private readonly router: Router) {
+  constructor(private readonly petApi: PetApiService, private readonly router: Router, private readonly sessionService: SessionService) {
     this.onSelected.subscribe(this.onInternalSelected);
   }
 
@@ -92,7 +93,7 @@ export class PetsList implements OnChanges, OnInit, AfterViewInit {
     this.petApi.pets(new PetsRequest(this.drop,
       this.take))
       .subscribe((response: PagedDto<PetsResponse>) => {
-        this.model = response.results.map(item => new PetsListModel(item.id, item.name, item.petType, item.userLastName));
+        this.model = response.results.map(item => new PetsListModel(item.id, item.name, item.petType, item.ownerLastName));
         this.resultsLength = response.totalCount;
       }, (_) => {
       });
@@ -113,7 +114,7 @@ export class PetsList implements OnChanges, OnInit, AfterViewInit {
 
   onInternalSelected(event: Selected) {
     const item: PetsListModel = this.model.find(a => a.id === event.itemId);
-    this.router.navigate(['/private/pet', item.id]);
+    this.router.navigate([this.sessionService.getActiveTenant() + '/private/pet', item.id]);
   }
 
 }

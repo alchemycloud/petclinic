@@ -33,7 +33,7 @@ export class PetApiService {
     }
 
     return this.http.get<PagedDto<PetsResponse>>(
-      environment.backendUrl + '/pets', {
+      environment.backendUrl + '/pets/pets', {
         headers: this.header(),
         params
       }).pipe(
@@ -41,33 +41,33 @@ export class PetApiService {
     );
   }
 
+  petsByType(request: PetsByTypeRequest): Observable<Array<PetsByTypeResponse>> {
+    let params: HttpParams = new HttpParams();
+    if (request.petType !== null) {
+      params = params.set('petType', request.petType.toString());
+    }
+
+    return this.http.get<Array<PetsByTypeResponse>>(
+      environment.backendUrl + '/pets/pets-by-type', {
+        headers: this.header(),
+        params
+      }).pipe(
+      catchError(this.handleError<Array<PetsByTypeResponse>>('petsByType'))
+    );
+  }
+
   updatePet(request: UpdatePetRequest): Observable<UpdatePetResponse> {
     return this.http.put<UpdatePetResponse>(
-      environment.backendUrl + '/pet/${request.id}', request, {
+      environment.backendUrl + '/pets/update-pet', request, {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<UpdatePetResponse>('updatePet'))
     );
   }
 
-  findPetbyType(request: FindPetbyTypeRequest): Observable<Array<FindPetbyTypeResponse>> {
-    let params: HttpParams = new HttpParams();
-    if (request.petType !== null) {
-      params = params.set('petType', request.petType.toString());
-    }
-
-    return this.http.get<Array<FindPetbyTypeResponse>>(
-      environment.backendUrl + '/find-petby-type', {
-        headers: this.header(),
-        params
-      }).pipe(
-      catchError(this.handleError<Array<FindPetbyTypeResponse>>('findPetbyType'))
-    );
-  }
-
   createPet(request: CreatePetRequest): Observable<CreatePetResponse> {
     return this.http.post<CreatePetResponse>(
-      environment.backendUrl + '/pet', request, {
+      environment.backendUrl + '/pets/create-pet', request, {
         headers: this.header()
       }).pipe(
       catchError(this.handleError<CreatePetResponse>('createPet'))
@@ -75,18 +75,30 @@ export class PetApiService {
   }
 
   deletePet(request: DeletePetRequest): Observable<Record<string, never>> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
     return this.http.delete<Record<string, never>>(
-      environment.backendUrl + '/pet/${request.id}', {
-        headers: this.header()
+      environment.backendUrl + '/pets/delete-pet', {
+        headers: this.header(),
+        params
       }).pipe(
       catchError(this.handleError<Record<string, never>>('deletePet'))
     );
   }
 
   readPet(request: ReadPetRequest): Observable<ReadPetResponse> {
+    let params: HttpParams = new HttpParams();
+    if (request.id !== null) {
+      params = params.set('id', request.id.toString());
+    }
+
     return this.http.get<ReadPetResponse>(
-      environment.backendUrl + '/pet/${request.id}', {
-        headers: this.header()
+      environment.backendUrl + '/pets/read-pet', {
+        headers: this.header(),
+        params
       }).pipe(
       catchError(this.handleError<ReadPetResponse>('readPet'))
     );
@@ -109,20 +121,32 @@ export class PetApiService {
 
 }
 
+export class PetsByTypeResponse {
+  id: number;
+  name: string;
+
+  constructor(id: number,
+              name: string) {
+    this.id = id;
+    this.name = name;
+  }
+
+}
+
 export class PetsResponse {
   id: number;
   name: string;
   petType: PetType;
-  userLastName: string;
+  ownerLastName: string;
 
   constructor(id: number,
               name: string,
               petType: PetType,
-              userLastName: string) {
+              ownerLastName: string) {
     this.id = id;
     this.name = name;
     this.petType = petType;
-    this.userLastName = userLastName;
+    this.ownerLastName = ownerLastName;
   }
 
 }
@@ -132,6 +156,15 @@ export class ReadPetRequest {
 
   constructor(id: number) {
     this.id = id;
+  }
+
+}
+
+export class PetsByTypeRequest {
+  petType: PetType;
+
+  constructor(petType: PetType) {
+    this.petType = petType;
   }
 
 }
@@ -149,34 +182,22 @@ export class UpdatePetResponse {
   id: number;
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(id: number,
               ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.id = id;
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
-  }
-
-}
-
-export class FindPetbyTypeResponse {
-  name: string;
-  petType: PetType;
-
-  constructor(name: string,
-              petType: PetType) {
-    this.name = name;
-    this.petType = petType;
   }
 
 }
@@ -185,20 +206,20 @@ export class UpdatePetRequest {
   id: number;
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(id: number,
               ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.id = id;
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
   }
@@ -208,29 +229,20 @@ export class UpdatePetRequest {
 export class CreatePetRequest {
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
-  }
-
-}
-
-export class FindPetbyTypeRequest {
-  petType: PetType;
-
-  constructor(petType: PetType) {
-    this.petType = petType;
   }
 
 }
@@ -251,20 +263,20 @@ export class CreatePetResponse {
   id: number;
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(id: number,
               ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.id = id;
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
   }
@@ -275,20 +287,20 @@ export class ReadPetResponse {
   id: number;
   ownerId: number;
   name: string;
-  birthdate: Date;
+  birthday: Date;
   petType: PetType;
   vaccinated: boolean;
 
   constructor(id: number,
               ownerId: number,
               name: string,
-              birthdate: Date,
+              birthday: Date,
               petType: PetType,
               vaccinated: boolean) {
     this.id = id;
     this.ownerId = ownerId;
     this.name = name;
-    this.birthdate = birthdate;
+    this.birthday = birthday;
     this.petType = petType;
     this.vaccinated = vaccinated;
   }

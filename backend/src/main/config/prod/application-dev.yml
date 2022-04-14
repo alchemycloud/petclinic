@@ -13,6 +13,7 @@ spring:
         database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
         database: MYSQL
         show_sql: true
+        open_in_view: false
         hibernate:
             naming:
               implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
@@ -25,13 +26,14 @@ spring:
         multipart:
             max-file-size: 100MB
             max-request-size: 100MB
+    liquibase:
+        enabled: false # important to spring boot dont create liquibase
 server:
     error:
         include-message: always
 custom:
     environment: prod
     secretKey: changeme
-    adminEmail: admin_production@email.com
     accessTokenValidityInSeconds: 300
     refreshTokenValidityInSeconds: 3600
     storageFolder:
@@ -40,11 +42,3 @@ custom:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-    mail:
-        from: support@drytools.co
-        host: localhost
-        port: 587
-        username:
-        password:
-        starttls: true
-        auth: false

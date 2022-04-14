@@ -1,0 +1,3 @@
+tests administration.UserApi.removeUserFromTenant(
+    test removeUserFromTenant
+)
